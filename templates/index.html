@@ -27,8 +27,6 @@
                             class="flex items-center justify-center bg-[#F0F8FF] font-semibold py-3 px-6 rounded-2xl w-[220px] h-[70px]  hover:bg-gray-300">
                             <img src="{{ url_for('static', filename='upload-na-nuvem.png') }}" alt="Upload na nuvem" class="w-10 h-10">
                         </button>
-
-                        <p id="file-name" class="mt-4 text-sm text-white break-all"></p>
                     </div>
 
                     <div class="w-2/3 bg-[#DBEFF7] p-8 flex flex-col items-center">
@@ -41,7 +39,9 @@
 
                         <input name="nome"
                             class="bg-[#DFE1ED] rounded-2xl w-[480px] h-[60px] shadow-inner pl-5 placeholder:text-gray-400 placeholder:font-bold mt-[120px]"
-                            type="text" placeholder="Nome">
+                            id="file-name"
+                            type="text" placeholder="Nome"
+                            disabled>
 
                         <button type="submit"
                             class="flex items-center justify-center text-white font-[Poppins] font-bold text-xl w-[200px] h-[60px] rounded-full bg-[#284CFF] uppercase hover:bg-blue-500 transition-colors mt-[56px]">
@@ -59,11 +59,18 @@
         const browseBtn = document.getElementById('browse-btn');
         const fileNameDisplay = document.getElementById('file-name');
 
+        window.addEventListener("DOMContentLoaded", () => {
+            fileNameDisplay.value = "";
+            fileNameDisplay.disabled = true;
+            fileInput.value = "";
+        });
+
         browseBtn.addEventListener('click', () => fileInput.click());
 
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
-                fileNameDisplay.textContent = fileInput.files[0].name;
+                fileNameDisplay.disabled = false;
+                fileNameDisplay.value = fileInput.files[0].name;
             }
         });
 
