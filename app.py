@@ -40,14 +40,18 @@ def upload_file():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        # time.sleep(10) # Espera de 10 segundos para simular processamento (Tela Processamento)
+        try:
+            # Processa o arquivo upado e gera o arquivo de saída
+            out_csv_path, out_fig_path = process_file(filepath, app.config['UPLOAD_FOLDER'])
+        except Exception as e:
+            flash('Erro no processamento: ' + str(e))
+            return redirect(url_for('index'))
 
-        process_file(filepath)
-
-        # Retorna o arquivo de volta para download
+        # Retorna o arquivo de previsão para download
+        out_csv_name = os.path.basename(out_csv_path)
         return send_from_directory(
             app.config['UPLOAD_FOLDER'],
-            filename,
+            out_csv_name,
             as_attachment=True
         )
     else:
