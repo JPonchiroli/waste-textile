@@ -12,7 +12,7 @@
 
 <body>
     <main>
-        <article class="grid place-items-center h-screen">
+        <article id="waste-container" class="grid place-items-center h-screen">
             <form action="/upload" method="POST" enctype="multipart/form-data">
                 <div class="flex bg-[#DBEFF7] rounded-2xl w-[880px] h-[520px] overflow-hidden shadow-lg">
 
@@ -25,7 +25,8 @@
 
                         <button type="button" id="browse-btn"
                             class="flex items-center justify-center bg-[#F0F8FF] font-semibold py-3 px-6 rounded-2xl w-[220px] h-[70px]  hover:bg-gray-300">
-                            <img src="{{ url_for('static', filename='upload-na-nuvem.png') }}" alt="Upload na nuvem" class="w-10 h-10">
+                            <img src="{{ url_for('static', filename='upload-na-nuvem.png') }}" alt="Upload na nuvem"
+                                class="w-10 h-10">
                         </button>
                     </div>
 
@@ -39,12 +40,14 @@
 
                         <input name="nome"
                             class="bg-[#DFE1ED] rounded-2xl w-[480px] h-[60px] shadow-inner pl-5 placeholder:text-gray-400 placeholder:font-bold mt-[120px]"
-                            id="file-name"
-                            type="text" placeholder="Nome"
-                            disabled>
+                            id="file-name" type="text" placeholder="Nome" disabled>
 
-                        <button type="submit"
-                            class="flex items-center justify-center text-white font-[Poppins] font-bold text-xl w-[200px] h-[60px] rounded-full bg-[#284CFF] uppercase hover:bg-blue-500 transition-colors mt-[56px]">
+                        <p id="error-msg" class="text-red-500 text-sm mt-2 hidden">Selecione um arquivo antes de
+                            continuar.</p>
+
+                        <button id="btn-submit" type="submit"
+                            class="flex items-center justify-center text-white font-[Poppins] font-bold text-xl w-[200px] h-[60px] rounded-full bg-gray-400 uppercase mt-[56px] cursor-not-allowed"
+                            disabled>
                             Cadastrar
                         </button>
                     </div>
@@ -53,47 +56,105 @@
         </article>
     </main>
 
-    <script>
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        const browseBtn = document.getElementById('browse-btn');
-        const fileNameDisplay = document.getElementById('file-name');
+ <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const browseBtn = document.getElementById('browse-btn');
+    const fileNameDisplay = document.getElementById('file-name');
+    const submitBtn = document.getElementById('btn-submit');
 
-        window.addEventListener("DOMContentLoaded", () => {
+    // Cria mensagem de erro abaixo do input, se ainda não existir
+    let errorMsg = document.getElementById('error-msg');
+    if (!errorMsg) {
+        errorMsg = document.createElement('p');
+        errorMsg.id = 'error-msg';
+        errorMsg.className = 'text-red-500 text-sm mt-2 hidden';
+        fileNameDisplay.insertAdjacentElement('afterend', errorMsg);
+        errorMsg.textContent = "Selecione um arquivo antes de continuar.";
+    }
+
+    // Inicializa botão como desabilitado
+    submitBtn.disabled = true;
+    submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
+    submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
+
+    // Quando o usuário seleciona um arquivo
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.disabled = false;
+            fileNameDisplay.value = fileInput.files[0].name;
+
+            // Habilita botão
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
+            submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
+
+            // Esconde erro
+            errorMsg.classList.add("hidden");
+        } else {
             fileNameDisplay.value = "";
             fileNameDisplay.disabled = true;
-            fileInput.value = "";
-        });
 
-        browseBtn.addEventListener('click', () => fileInput.click());
+            // Desabilita botão
+            submitBtn.disabled = true;
+            submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
+            submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
+        }
+    });
 
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                fileNameDisplay.disabled = false;
-                fileNameDisplay.value = fileInput.files[0].name;
-            }
-        });
+    // Clique no botão
+    submitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('bg-blue-900');
-        });
+        if (fileInput.files.length === 0) {
+            errorMsg.classList.remove("hidden"); // mostra mensagem de erro
+            return;
+        }
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('bg-blue-900');
-        });
+        // Redireciona para a próxima página
+        window.location.href = "{{ url_for('upload_page') }}";
+    });
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('bg-blue-900');
+    // Botão "Procurar arquivo"
+    browseBtn.addEventListener('click', () => fileInput.click());
 
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                fileNameDisplay.textContent = files[0].name;
-            }
-        });
-    </script>
+    // Drag & drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('bg-blue-900');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('bg-blue-900');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('bg-blue-900');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileNameDisplay.value = files[0].name;
+
+            // Habilita botão ao arrastar arquivo
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
+            submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
+
+            errorMsg.classList.add("hidden");
+        }
+    });
+
+    // Inicialização
+    window.addEventListener("DOMContentLoaded", () => {
+        fileNameDisplay.value = "";
+        fileNameDisplay.disabled = true;
+        fileInput.value = "";
+        submitBtn.disabled = true;
+    });
+</script>
+
 </body>
 
 </html>

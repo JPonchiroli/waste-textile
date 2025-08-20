@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Waste Textile</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Upload</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <article class="flex bg-[#DBEFF7] rounded-2xl w-[880px] h-[520px] overflow-hidden shadow-lg">
-        <img src="{{ url_for('static', filename='c:\Users\PEDRO\Desktop\png-clipart-google-docs-computer-icons-g-suite-spreadsheet-google-sheets-google-blue-angle.png') }}" alt="Planilha" class="w-10 h-10">
-    </article>
+  <article class="grid place-items-center h-screen">
+    <div class="flex bg-gray-100 rounded-2xl w-[880px] h-[520px] overflow-hidden shadow-lg">
 
-    
+    </div>
+  </article>
 </body>
+<script>
+    window.addEventListener("load", () => {
+        const navEntries = performance.getEntriesByType("navigation");
+        if (navEntries.length > 0 && navEntries[0].type === "reload") {
+            window.location.href = "{{ url_for('index') }}";
+        }
+    });
+</script>
+
 </html>

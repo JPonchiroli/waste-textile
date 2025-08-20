@@ -22,6 +22,10 @@ def allowed_file(filename):
 def index():
     return render_template('index.html')
 
+@app.route('/upload', methods=['GET'])
+def upload_page():
+    return render_template('upload.html')
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'arquivo' not in request.files:
