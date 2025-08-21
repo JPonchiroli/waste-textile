@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session
 from werkzeug.utils import secure_filename
 from ml._main import process_file  # Importa o módulo _main.py
 import time
@@ -26,6 +26,10 @@ def index():
 def upload_page():
     return render_template('upload.html')
 
+@app.route('/uploadComplete')
+def upload_complete():
+    return render_template('uploadComplete.html')
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'arquivo' not in request.files:
@@ -45,22 +49,32 @@ def upload_file():
         file.save(filepath)
 
         try:
-            # Processa o arquivo upado e gera o arquivo de saída
+            print('Entrou no try')
             out_csv_path, out_fig_path = process_file(filepath, app.config['UPLOAD_FOLDER'])
         except Exception as e:
             flash('Erro no processamento: ' + str(e))
             return redirect(url_for('index'))
 
-        # Retorna o arquivo de previsão para download
+        # Salva o nome do arquivo gerado na sessão
         out_csv_name = os.path.basename(out_csv_path)
-        return send_from_directory(
-            app.config['UPLOAD_FOLDER'],
-            out_csv_name,
-            as_attachment=True
-        )
+        session['last_processed_file'] = out_csv_name  # ← Armazena para download depois
+
+        return redirect(url_for('upload_complete'))
     else:
         flash('Tipo de arquivo não permitido! Envie apenas .xlsx ou .csv')
         return redirect(url_for('index'))
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    if 'last_processed_file' not in session or session['last_processed_file'] != filename:
+        flash('Arquivo não encontrado ou acesso inválido.')
+        return redirect(url_for('index'))
+
+    return send_from_directory(
+        app.config['UPLOAD_FOLDER'],
+        filename,
+        as_attachment=True
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
