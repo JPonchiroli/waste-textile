@@ -10,32 +10,41 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <main>
-        <article id="waste-container" class="grid place-items-center h-screen">
-            <form action="/upload" method="POST" enctype="multipart/form-data">
-                <div class="flex bg-[#DBEFF7] rounded-2xl w-[880px] h-[520px] overflow-hidden shadow-lg">
+<body class="font-[Poppins]">
 
-                    <input type="file" name="arquivo" id="file-input" class="hidden">
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="fixed top-4 right-4 bg-red-500 text-white p-4 rounded shadow-lg max-w-xs z-50">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <main>
+        <!-- Step 1: Upload Form -->
+        <article id="step-upload" class="grid place-items-center h-screen">
+            <form action="/upload" method="POST" enctype="multipart/form-data" class="w-full">
+                <div class="flex bg-[#DBEFF7] rounded-2xl w-[880px] h-[520px] overflow-hidden shadow-lg mx-auto">
+
+                    <input type="file" name="arquivo" id="file-input" class="hidden" accept=".xlsx,.csv">
 
                     <div id="drop-zone"
-                        class="w-1/3 bg-[#0A1C36] flex flex-col justify-center items-center p-8 text-center">
-                        <h1 class="uppercase text-[#70BFFF] font-[Poppins] font-bold text-3xl mb-6">Selecione Seu
-                            Arquivo</h1>
-
+                        class="w-1/3 bg-[#0A1C36] flex flex-col justify-center items-center p-8 text-center cursor-pointer">
+                        <h1 class="uppercase text-[#70BFFF] font-bold text-3xl mb-6">Selecione Seu Arquivo</h1>
                         <button type="button" id="browse-btn"
-                            class="flex items-center justify-center bg-[#F0F8FF] font-semibold py-3 px-6 rounded-2xl w-[220px] h-[70px]  hover:bg-gray-300">
+                            class="flex items-center justify-center bg-[#F0F8FF] font-semibold py-3 px-6 rounded-2xl w-[220px] h-[70px] hover:bg-gray-300 transition">
                             <img src="{{ url_for('static', filename='upload-na-nuvem.png') }}" alt="Upload na nuvem"
                                 class="w-10 h-10">
                         </button>
                     </div>
 
                     <div class="w-2/3 bg-[#DBEFF7] p-8 flex flex-col items-center">
-
                         <div class="text-center mt-[60px]">
-                            <h1 class="font-[Poppins] font-extrabold text-3xl">Waste Textile</h1>
-                            <h2 class="font-[Poppins] font-medium text-base text-gray-700 mt-2">Preencha o Formulario
-                            </h2>
+                            <h1 class="font-extrabold text-3xl">Waste Textile</h1>
+                            <h2 class="font-medium text-base text-gray-700 mt-2">Preencha o Formulário</h2>
                         </div>
 
                         <input name="nome"
@@ -45,8 +54,8 @@
                         <p id="error-msg" class="text-red-500 text-sm mt-2 hidden">Selecione um arquivo antes de
                             continuar.</p>
 
-                        <button id="btn-submit" type="submit"
-                            class="flex items-center justify-center text-white font-[Poppins] font-bold text-xl w-[200px] h-[60px] rounded-full bg-gray-400 uppercase mt-[56px] cursor-not-allowed"
+                        <button id="btn-submit" type="button"
+                            class="flex items-center justify-center text-white font-bold text-xl w-[200px] h-[60px] rounded-full bg-gray-400 uppercase mt-[56px] cursor-not-allowed"
                             disabled>
                             Cadastrar
                         </button>
@@ -54,107 +63,176 @@
                 </div>
             </form>
         </article>
+
+        <!-- Step 2: Processing -->
+        <article id="step-processing" class="hidden grid place-items-center h-screen bg-gray-50">
+            <div class="flex flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
+                <h1 class="text-3xl font-bold text-gray-800 mb-6">Processando seu arquivo...</h1>
+                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="mt-6 text-gray-600">Aguarde, isso pode levar alguns segundos.</p>
+            </div>
+        </article>
+
+        <!-- Step 3: Upload Complete -->
+        <article id="step-complete" class="hidden grid place-items-center h-screen bg-gray-50">
+            <div class="flex flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
+                <svg class="w-20 h-20 text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">Upload Concluído!</h1>
+                <p class="text-gray-600 mb-6">Seu arquivo foi processado com sucesso.</p>
+                <a id="download-link" href="#"
+                    class="inline-flex items-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition"
+                    download>
+                    Baixar Arquivo Processado (.xlsx)
+                </a>
+            </div>
+        </article>
     </main>
 
- <script>
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const browseBtn = document.getElementById('browse-btn');
-    const fileNameDisplay = document.getElementById('file-name');
-    const submitBtn = document.getElementById('btn-submit');
+    <script>
+        // DOM Elements
+        const stepUpload = document.getElementById('step-upload');
+        const stepProcessing = document.getElementById('step-processing');
+        const stepComplete = document.getElementById('step-complete');
 
-    // Cria mensagem de erro abaixo do input, se ainda não existir
-    let errorMsg = document.getElementById('error-msg');
-    if (!errorMsg) {
-        errorMsg = document.createElement('p');
-        errorMsg.id = 'error-msg';
-        errorMsg.className = 'text-red-500 text-sm mt-2 hidden';
-        fileNameDisplay.insertAdjacentElement('afterend', errorMsg);
-        errorMsg.textContent = "Selecione um arquivo antes de continuar.";
-    }
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const browseBtn = document.getElementById('browse-btn');
+        const fileNameDisplay = document.getElementById('file-name');
+        const submitBtn = document.getElementById('btn-submit');
+        const errorMsg = document.getElementById('error-msg');
 
-    // Inicializa botão como desabilitado
-    submitBtn.disabled = true;
-    submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
-    submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
+        // Switch screens
+        function showStep(step) {
+            stepUpload.classList.add('hidden');
+            stepProcessing.classList.add('hidden');
+            stepComplete.classList.add('hidden');
+            step.classList.remove('hidden');
+        }
 
-    // Quando o usuário seleciona um arquivo
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) {
-            fileNameDisplay.disabled = false;
-            fileNameDisplay.value = fileInput.files[0].name;
+        // File selection logic
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileNameDisplay.disabled = false;
+                fileNameDisplay.value = file.name;
 
-            // Habilita botão
-            submitBtn.disabled = false;
-            submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
-            submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
+                submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
 
-            // Esconde erro
-            errorMsg.classList.add("hidden");
-        } else {
+                errorMsg.classList.add("hidden");
+            } else {
+                fileNameDisplay.value = "";
+                fileNameDisplay.disabled = true;
+
+                submitBtn.disabled = true;
+                submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
+                submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
+            }
+        });
+
+        // Submit button click
+        submitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            if (fileInput.files.length === 0) {
+                errorMsg.classList.remove("hidden");
+                return;
+            }
+
+            showStep(stepProcessing);
+
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+
+            // Garante que a tela de processamento apareça por pelo menos 1s
+            Promise.all([
+                fetch('/upload', { method: 'POST', body: formData }),
+                new Promise(resolve => setTimeout(resolve, 3000))
+            ])
+                .then(([response]) => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        window.location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro no upload:', err);
+                    alert('Erro ao enviar o arquivo. Verifique sua conexão.');
+                    showStep(stepUpload);
+                });
+        });
+
+        // Browse button click
+        browseBtn.addEventListener('click', () => fileInput.click());
+
+        // Drag & Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('bg-blue-900', 'shadow-lg', 'scale-105');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('bg-blue-900', 'shadow-lg', 'scale-105');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-blue-900', 'shadow-lg', 'scale-105');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                // Usa DataTransfer para compatibilidade
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(files[0]);
+                fileInput.files = dataTransfer.files;
+
+                const file = files[0];
+                fileNameDisplay.value = file.name;
+                fileNameDisplay.disabled = false;
+
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
+                submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
+
+                errorMsg.classList.add("hidden");
+            }
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const uploadSuccess = urlParams.get('upload');
+
+            // Inicializa campos
             fileNameDisplay.value = "";
             fileNameDisplay.disabled = true;
-
-            // Desabilita botão
             submitBtn.disabled = true;
-            submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
-            submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
-        }
-    });
+            fileInput.value = "";
 
-    // Clique no botão
-    submitBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+            if (uploadSuccess === 'success') {
+                // Remove o parâmetro da URL
+                history.replaceState(null, '', window.location.pathname);
 
-        if (fileInput.files.length === 0) {
-            errorMsg.classList.remove("hidden"); // mostra mensagem de erro
-            return;
-        }
+                // Mostra tela de sucesso
+                const sessionFileName = {{ session.get('last_processed_file', '') | tojson }};
+                if (sessionFileName) {
+                    fileNameDisplay.value = sessionFileName;
+                }
 
-        // Redireciona para a próxima página
-        window.location.href = "{{ url_for('upload_page') }}";
-    });
+                showStep(stepComplete);
 
-    // Botão "Procurar arquivo"
-    browseBtn.addEventListener('click', () => fileInput.click());
-
-    // Drag & drop
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('bg-blue-900');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('bg-blue-900');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('bg-blue-900');
-
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            fileInput.files = files;
-            fileNameDisplay.value = files[0].name;
-
-            // Habilita botão ao arrastar arquivo
-            submitBtn.disabled = false;
-            submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
-            submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
-
-            errorMsg.classList.add("hidden");
-        }
-    });
-
-    // Inicialização
-    window.addEventListener("DOMContentLoaded", () => {
-        fileNameDisplay.value = "";
-        fileNameDisplay.disabled = true;
-        fileInput.value = "";
-        submitBtn.disabled = true;
-    });
-</script>
-
+                const downloadLink = document.getElementById('download-link');
+                if (downloadLink && sessionFileName) {
+                    downloadLink.href = `/download/${encodeURIComponent(sessionFileName)}`;
+                }
+            } else {
+                showStep(stepUpload);
+            }
+        });
+    </script>
 </body>
 
 </html>
