@@ -66,28 +66,36 @@
 
         <!-- Step 2: Processing -->
         <article id="step-processing" class="hidden grid place-items-center h-screen bg-gray-50">
-            <div class="flex flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
+            <div class="flex justify-center flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
+                <div class="flex items-center">
                 <h1 class="text-3xl font-bold text-gray-800 mb-6">Processando seu arquivo...</h1>
-                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <p class="mt-6 text-gray-600">Aguarde, isso pode levar alguns segundos.</p>
+                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin ml-5 mb-8"></div>
+                </div>
+                <p class="text-gray-600">Aguarde, isso pode levar alguns segundos.</p>
             </div>
         </article>
 
         <!-- Step 3: Upload Complete -->
-        <article id="step-complete" class="hidden grid place-items-center h-screen bg-gray-50">
-            <div class="flex flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
-                <svg class="w-20 h-20 text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <h1 class="text-3xl font-bold text-gray-800 mb-4">Upload Concluído!</h1>
-                <p class="text-gray-600 mb-6">Seu arquivo foi processado com sucesso.</p>
-                <a id="download-link" href="#"
-                    class="inline-flex items-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition"
-                    download>
-                    Baixar Arquivo Processado (.xlsx)
-                </a>
-            </div>
-        </article>
+<article id="step-complete" class="hidden grid place-items-center h-screen bg-gray-50">
+    <div class="flex justify-center flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
+
+        <div class="flex items-center gap-3 mb-4">
+            <h1 class="text-3xl font-bold text-gray-800">Upload Concluído!</h1>
+
+            <svg class="w-16 h-16 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <p class="text-gray-600 mb-4">Seu arquivo foi processado com sucesso.</p>
+
+        <a id="download-link" href="#"
+            class="inline-flex items-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition shadow-xl"
+            download>
+            Baixar Arquivo Processado (.xlsx)
+        </a>
+    </div>
+</article>
     </main>
 
     <script>
