@@ -55,7 +55,6 @@ def upload_file():
         out_csv_name = os.path.basename(out_csv_path)
         session['last_processed_file'] = out_csv_name
 
-        # --- NOVA ALTERAÇÃO ---
         # Salva os nomes dos arquivos de imagem dos gráficos na sessão
         session['fig1'] = os.path.basename(out_fig_paths[0])
         session['fig2'] = os.path.basename(out_fig_paths[1])
@@ -79,7 +78,7 @@ def download_file_route(filename): # Renomeado para evitar conflito de nome
         as_attachment=True
     )
 
-# --- NOVA ROTA PARA SERVIR AS IMAGENS ---
+# --- ROTA PARA SERVIR AS IMAGENS ---
 @app.route('/plots/<filename>')
 def serve_plot(filename):
     # Por segurança, verifica se o arquivo solicitado está na sessão
