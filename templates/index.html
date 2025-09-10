@@ -12,7 +12,6 @@
 
 <body class="font-[Poppins]">
 
-    <!-- Flash messages -->
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     <div class="fixed top-4 right-4 bg-red-500 text-white p-4 rounded shadow-lg max-w-xs z-50">
@@ -24,7 +23,6 @@
     {% endwith %}
 
     <main>
-        <!-- Step 1: Upload Form -->
         <article id="step-upload" class="grid place-items-center h-screen">
             <form action="/upload" method="POST" enctype="multipart/form-data" class="w-full">
                 <div class="flex bg-[#DBEFF7] rounded-2xl w-[880px] h-[520px] overflow-hidden shadow-lg mx-auto">
@@ -32,7 +30,7 @@
                     <input type="file" name="arquivo" id="file-input" class="hidden" accept=".xlsx,.csv">
 
                     <div id="drop-zone"
-                        class="w-1/3 bg-[#0A1C36] flex flex-col justify-center items-center p-8 text-center cursor-pointer">
+                        class="w-1/3 bg-[#0A1C36] flex flex-col justify-center items-center p-8 text-center cursor-pointer transition-all duration-300">
                         <h1 class="uppercase text-[#70BFFF] font-bold text-3xl mb-6">Selecione Seu Arquivo</h1>
                         <button type="button" id="browse-btn"
                             class="flex items-center justify-center bg-[#F0F8FF] font-semibold py-3 px-6 rounded-2xl w-[220px] h-[70px] hover:bg-gray-300 transition">
@@ -49,7 +47,7 @@
 
                         <input name="nome"
                             class="bg-[#DFE1ED] rounded-2xl w-[480px] h-[60px] shadow-inner pl-5 placeholder:text-gray-400 placeholder:font-bold mt-[120px]"
-                            id="file-name" type="text" placeholder="Nome" disabled>
+                            id="file-name" type="text" placeholder="Nenhum arquivo selecionado" disabled>
 
                         <p id="error-msg" class="text-red-500 text-sm mt-2 hidden">Selecione um arquivo antes de
                             continuar.</p>
@@ -64,39 +62,60 @@
             </form>
         </article>
 
-        <!-- Step 2: Processing -->
         <article id="step-processing" class="hidden grid place-items-center h-screen bg-gray-50">
-            <div class="flex justify-center flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
+            <div
+                class="flex justify-center flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
                 <div class="flex items-center">
-                <h1 class="text-3xl font-bold text-gray-800 mb-6">Processando seu arquivo...</h1>
-                <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin ml-5 mb-8"></div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Processando seu arquivo...</h1>
+                    <div
+                        class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin ml-5 mb-8">
+                    </div>
                 </div>
                 <p class="text-gray-600">Aguarde, isso pode levar alguns segundos.</p>
             </div>
         </article>
 
-        <!-- Step 3: Upload Complete -->
-<article id="step-complete" class="hidden grid place-items-center h-screen bg-gray-50">
-    <div class="flex justify-center flex-col items-center bg-white rounded-2xl w-[880px] h-[520px] p-8 shadow-lg">
+        <article id="step-complete"
+            class="hidden flex flex-col justify-center items-center min-h-screen bg-gray-50 py-12">
+            <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg w-full max-w-6xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <h1 class="text-3xl font-bold text-gray-800">Upload Concluído!</h1>
+                    <svg class="w-16 h-16 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <p class="text-gray-600 mb-8">Seu arquivo foi processado. Veja os gráficos abaixo e faça o download
+                    dos dados.</p>
 
-        <div class="flex items-center gap-3 mb-4">
-            <h1 class="text-3xl font-bold text-gray-800">Upload Concluído!</h1>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-bold text-center mb-2">Gráfico 1</h3>
+                        <img id="chart1" src="" alt="Gráfico 1" class="w-full h-auto rounded">
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-bold text-center mb-2">Gráfico 2</h3>
+                        <img id="chart2" src="" alt="Gráfico 2" class="w-full h-auto rounded">
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-bold text-center mb-2">Gráfico 3</h3>
+                        <img id="chart3" src="" alt="Gráfico 3" class="w-full h-auto rounded">
+                    </div>
+                </div>
 
-            <svg class="w-16 h-16 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-        </div>
-
-        <p class="text-gray-600 mb-4">Seu arquivo foi processado com sucesso.</p>
-
-        <a id="download-link" href="#"
-            class="inline-flex items-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition shadow-xl"
-            download>
-            Baixar Arquivo Processado (.xlsx)
-        </a>
-    </div>
-</article>
+                <a id="download-link" href="#"
+                    class="inline-flex items-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition shadow-xl"
+                    download>
+                    Baixar Arquivo Processado (.csv)
+                </a>
+            </div>
+        </article>
     </main>
+
+    <div id="session-data" data-csv-file="{{ session.get('last_processed_file', '') }}"
+        data-fig1="{{ session.get('fig1', '') }}" data-fig2="{{ session.get('fig2', '') }}"
+        data-fig3="{{ session.get('fig3', '') }}">
+    </div>
+
 
     <script>
         // DOM Elements
@@ -119,123 +138,86 @@
             step.classList.remove('hidden');
         }
 
-        // File selection logic
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                fileNameDisplay.disabled = false;
+        function updateFileNameAndButton(file) {
+            if (file) {
                 fileNameDisplay.value = file.name;
-
                 submitBtn.disabled = false;
                 submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
                 submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
-
                 errorMsg.classList.add("hidden");
             } else {
-                fileNameDisplay.value = "";
-                fileNameDisplay.disabled = true;
-
+                fileNameDisplay.value = "Nenhum arquivo selecionado";
                 submitBtn.disabled = true;
                 submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
                 submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
             }
+        }
+
+        // File selection logic
+        fileInput.addEventListener('change', () => {
+            updateFileNameAndButton(fileInput.files.length > 0 ? fileInput.files[0] : null);
         });
 
         // Submit button click
         submitBtn.addEventListener('click', (e) => {
             e.preventDefault();
-
             if (fileInput.files.length === 0) {
                 errorMsg.classList.remove("hidden");
                 return;
             }
-
             showStep(stepProcessing);
-
             const form = document.querySelector('form');
-            const formData = new FormData(form);
-
-            // Garante que a tela de processamento apareça por pelo menos 1s
-            Promise.all([
-                fetch('/upload', { method: 'POST', body: formData }),
-                new Promise(resolve => setTimeout(resolve, 3000))
-            ])
-                .then(([response]) => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                    } else {
-                        window.location.reload();
-                    }
-                })
-                .catch(err => {
-                    console.error('Erro no upload:', err);
-                    alert('Erro ao enviar o arquivo. Verifique sua conexão.');
-                    showStep(stepUpload);
-                });
+            form.submit();
         });
 
         // Browse button click
         browseBtn.addEventListener('click', () => fileInput.click());
 
         // Drag & Drop
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('bg-blue-900', 'shadow-lg', 'scale-105');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('bg-blue-900', 'shadow-lg', 'scale-105');
-        });
-
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-blue-900'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('bg-blue-900'); });
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('bg-blue-900', 'shadow-lg', 'scale-105');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                // Usa DataTransfer para compatibilidade
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(files[0]);
-                fileInput.files = dataTransfer.files;
-
-                const file = files[0];
-                fileNameDisplay.value = file.name;
-                fileNameDisplay.disabled = false;
-
-                submitBtn.disabled = false;
-                submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
-                submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
-
-                errorMsg.classList.add("hidden");
+            dropZone.classList.remove('bg-blue-900');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileNameAndButton(fileInput.files[0]);
             }
         });
 
         window.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
             const uploadSuccess = urlParams.get('upload');
-
-            // Inicializa campos
-            fileNameDisplay.value = "";
-            fileNameDisplay.disabled = true;
-            submitBtn.disabled = true;
+            updateFileNameAndButton(null);
             fileInput.value = "";
 
             if (uploadSuccess === 'success') {
-                // Remove o parâmetro da URL
                 history.replaceState(null, '', window.location.pathname);
 
-                // Mostra tela de sucesso
-                const sessionFileName = {{ session.get('last_processed_file', '') | tojson }};
-                if (sessionFileName) {
-                    fileNameDisplay.value = sessionFileName;
-                }
+                // --- LÓGICA PARA PEGAR OS DADOS ---
+                const sessionData = document.getElementById('session-data').dataset;
+                const sessionCsvFile = sessionData.csvFile;
+                const fig1_name = sessionData.fig1;
+                const fig2_name = sessionData.fig2;
+                const fig3_name = sessionData.fig3;
 
                 showStep(stepComplete);
 
+                // Configura link de download
                 const downloadLink = document.getElementById('download-link');
-                if (downloadLink && sessionFileName) {
-                    downloadLink.href = `/download/${encodeURIComponent(sessionFileName)}`;
+                if (downloadLink && sessionCsvFile) {
+                    downloadLink.href = `/download/${encodeURIComponent(sessionCsvFile)}`;
                 }
+
+                // Configura os gráficos
+                const chart1 = document.getElementById('chart1');
+                const chart2 = document.getElementById('chart2');
+                const chart3 = document.getElementById('chart3');
+
+                if (chart1 && fig1_name) chart1.src = `/plots/${encodeURIComponent(fig1_name)}`;
+                if (chart2 && fig2_name) chart2.src = `/plots/${encodeURIComponent(fig2_name)}`;
+                if (chart3 && fig3_name) chart3.src = `/plots/${encodeURIComponent(fig3_name)}`;
+
             } else {
                 showStep(stepUpload);
             }
