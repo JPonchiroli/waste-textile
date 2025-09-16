@@ -133,19 +133,18 @@ def process_data_for_dashboard(csv_path):
         dados_completos_df = pd.read_excel(csv_path, sheet_name='Dados_Completos')
         previsoes_df = pd.read_excel(csv_path, sheet_name='Previsoes_12m')
         
-        # Verificar se a coluna Residuo_kg existe nos dados históricos, se não, calcular
-        if 'Residuo_kg' not in dados_completos_df.columns or dados_completos_df['Residuo_kg'].isnull().all():
-            dados_completos_df['Residuo_kg'] = dados_completos_df['Producao_Total_kg'] * 0.10
+        # VERIFICAÇÃO CRÍTICA: A aba Dados_Completos já contém as previsões!
+        # Precisamos separar apenas os dados históricos (primeiras 12 linhas)
+        dados_historicos = dados_completos_df.iloc[:12].copy()  # Apenas 2023
         
-        # Combinar dados históricos e previsões
-        # Primeiro garantir que as colunas estão consistentes
-        colunas_comuns = ['Mes', 'Producao_Total_kg', 'Eficiencia_kg_h', 'Horas_Operacionais', 'Residuo_kg']
+        # Garantir que a coluna Residuo_kg existe para dados históricos
+        if 'Residuo_kg' not in dados_historicos.columns or dados_historicos['Residuo_kg'].isnull().all():
+            dados_historicos['Residuo_kg'] = dados_historicos['Producao_Total_kg'] * 0.10
         
-        # Selecionar apenas as colunas comuns para ambos os DataFrames
-        dados_historicos = dados_completos_df[colunas_comuns].copy()
-        previsoes_para_combinar = previsoes_df[colunas_comuns].copy()
+        # Preparar previsões - usar apenas da aba Previsoes_12m
+        previsoes_para_combinar = previsoes_df.copy()
         
-        # Combinar dados históricos e previsões
+        # Combinar dados históricos (2023) e previsões (2024)
         dados_combinados = pd.concat([dados_historicos, previsoes_para_combinar], ignore_index=True)
         
         # Adicionar coluna is_forecast para identificar previsões
@@ -176,28 +175,28 @@ def process_data_for_dashboard(csv_path):
         if 'max_expected' in dados_combinados.columns:
             dashboard_data['max_expected'] = dados_combinados['max_expected'].tolist()
         
-        # Calcular métricas para os cards (usando o último mês disponível)
-        if len(dados_combinados) > 0:
-            ultimo_registro = dados_combinados.iloc[-1]
-            ultimo_historico = dados_historicos.iloc[-1] if len(dados_historicos) > 0 else ultimo_registro
+        # Calcular métricas para os cards (comparar último histórico vs primeira previsão)
+        if len(dados_historicos) > 0 and len(previsoes_para_combinar) > 0:
+            ultimo_historico = dados_historicos.iloc[-1]  # Último mês de 2023
+            primeira_previsao = previsoes_para_combinar.iloc[0]  # Primeiro mês de 2024
             
             # Calcular variações percentuais
-            variacao_producao = ((ultimo_registro['Producao_Total_kg'] - ultimo_historico['Producao_Total_kg']) / 
+            variacao_producao = ((primeira_previsao['Producao_Total_kg'] - ultimo_historico['Producao_Total_kg']) / 
                                 ultimo_historico['Producao_Total_kg']) * 100
-            variacao_eficiencia = ((ultimo_registro['Eficiencia_kg_h'] - ultimo_historico['Eficiencia_kg_h']) / 
+            variacao_eficiencia = ((primeira_previsao['Eficiencia_kg_h'] - ultimo_historico['Eficiencia_kg_h']) / 
                                   ultimo_historico['Eficiencia_kg_h']) * 100
-            variacao_horas = ((ultimo_registro['Horas_Operacionais'] - ultimo_historico['Horas_Operacionais']) / 
+            variacao_horas = ((primeira_previsao['Horas_Operacionais'] - ultimo_historico['Horas_Operacionais']) / 
                              ultimo_historico['Horas_Operacionais']) * 100
             
             # Adicionar métricas ao dashboard_data
             dashboard_data['metrics'] = {
-                'producao_total': float(ultimo_registro['Producao_Total_kg']),
+                'producao_total': float(primeira_previsao['Producao_Total_kg']),
                 'variacao_producao': float(variacao_producao),
-                'eficiencia': float(ultimo_registro['Eficiencia_kg_h']),
+                'eficiencia': float(primeira_previsao['Eficiencia_kg_h']),
                 'variacao_eficiencia': float(variacao_eficiencia),
-                'horas_operacionais': float(ultimo_registro['Horas_Operacionais']),
+                'horas_operacionais': float(primeira_previsao['Horas_Operacionais']),
                 'variacao_horas': float(variacao_horas),
-                'residuo_estimado': float(ultimo_registro['Residuo_kg']),
+                'residuo_estimado': float(primeira_previsao['Residuo_kg']),
                 'variacao_residuo': float(variacao_producao)  # Resíduo varia na mesma proporção da produção
             }
         else:
@@ -212,6 +211,13 @@ def process_data_for_dashboard(csv_path):
                 'residuo_estimado': 0,
                 'variacao_residuo': 0
             }
+        
+        # DEBUG: Verificar quantos registros temos
+        print(f"DEBUG: Dados históricos: {len(dados_historicos)} registros")
+        print(f"DEBUG: Previsões: {len(previsoes_para_combinar)} registros")
+        print(f"DEBUG: Total combinado: {len(dados_combinados)} registros")
+        print(f"DEBUG: Primeiros meses: {dados_combinados['Mes'].head(5).tolist()}")
+        print(f"DEBUG: Últimos meses: {dados_combinados['Mes'].tail(5).tolist()}")
         
         return dashboard_data
         

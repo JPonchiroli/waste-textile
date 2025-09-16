@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Completo - Waste Textile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="font-[Poppins] bg-gray-50">
+  <div class="container mx-auto px-4 py-8">
+    <!-- Cabeçalho -->
+    <header class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Dashboard Completo</h1>
+        <p class="text-gray-600">Análise detalhada dos dados processados</p>
+      </div>
+      <a href="/" class="bg-[#0A1C36] text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition">
+        Voltar para Upload
+      </a>
+    </header>
+
+    <!-- Cards de Métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-gray-500 text-sm font-medium mb-2">Produção Total</h3>
+        <p class="text-3xl font-bold text-gray-800">
+          {{ "{:,.0f}".format(data.metrics.producao_total) }}
+          <span class="text-sm text-gray-500">kg</span>
+        </p>
+        <div class="flex items-center mt-2">
+          {% if data.metrics.variacao_producao >= 0 %}
+          <span class="text-green-600 text-sm font-medium">+{{ "%.1f"|format(data.metrics.variacao_producao) }}%</span>
+          {% else %}
+          <span class="text-red-600 text-sm font-medium">{{ "%.1f"|format(data.metrics.variacao_producao) }}%</span>
+          {% endif %}
+          <span class="text-gray-400 text-sm ml-2">vs último mês histórico</span>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-gray-500 text-sm font-medium mb-2">Eficiência</h3>
+        <p class="text-3xl font-bold text-gray-800">
+          {{ "%.1f"|format(data.metrics.eficiencia) }}
+          <span class="text-sm text-gray-500">kg/h</span>
+        </p>
+        <div class="flex items-center mt-2">
+          {% if data.metrics.variacao_eficiencia >= 0 %}
+          <span class="text-green-600 text-sm font-medium">+{{ "%.1f"|format(data.metrics.variacao_eficiencia) }}%</span>
+          {% else %}
+          <span class="text-red-600 text-sm font-medium">{{ "%.1f"|format(data.metrics.variacao_eficiencia) }}%</span>
+          {% endif %}
+          <span class="text-gray-400 text-sm ml-2">vs último mês histórico</span>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-gray-500 text-sm font-medium mb-2">Horas Operacionais</h3>
+        <p class="text-3xl font-bold text-gray-800">
+          {{ "{:,.0f}".format(data.metrics.horas_operacionais) }}
+          <span class="text-sm text-gray-500">h</span>
+        </p>
+        <div class="flex items-center mt-2">
+          {% if data.metrics.variacao_horas >= 0 %}
+          <span class="text-green-600 text-sm font-medium">+{{ "%.1f"|format(data.metrics.variacao_horas) }}%</span>
+          {% else %}
+          <span class="text-red-600 text-sm font-medium">{{ "%.1f"|format(data.metrics.variacao_horas) }}%</span>
+          {% endif %}
+          <span class="text-gray-400 text-sm ml-2">vs último mês histórico</span>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-gray-500 text-sm font-medium mb-2">Resíduo Estimado</h3>
+        <p class="text-3xl font-bold text-gray-800">
+          {{ "{:,.0f}".format(data.metrics.residuo_estimado) }}
+          <span class="text-sm text-gray-500">kg</span>
+        </p>
+        <div class="flex items-center mt-2">
+          {% if data.metrics.variacao_residuo >= 0 %}
+          <span class="text-green-600 text-sm font-medium">+{{ "%.1f"|format(data.metrics.variacao_residuo) }}%</span>
+          {% else %}
+          <span class="text-red-600 text-sm font-medium">{{ "%.1f"|format(data.metrics.variacao_residuo) }}%</span>
+          {% endif %}
+          <span class="text-gray-400 text-sm ml-2">vs último mês histórico</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white p-4 rounded-xl shadow-md mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4 md:mb-0">Filtros de Período</h2>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <select id="periodFilter" class="bg-gray-100 border-0 rounded-lg px-4 py-2">
+            <option value="3">Últimos 3 meses</option>
+            <option value="6">Últimos 6 meses</option>
+            <option value="12" selected>Últimos 12 meses</option>
+            <option value="all">Período completo</option>
+          </select>
+          <select id="viewType" class="bg-gray-100 border-0 rounded-lg px-4 py-2">
+            <option value="monthly" selected>Visão mensal</option>
+            <option value="quarterly">Visão trimestral</option>
+            <option value="yearly">Visão anual</option>
+          </select>
+          <button id="applyFilters" class="bg-[#0A1C36] text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition">
+            Aplicar Filtros
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <!-- Gráfico de Produção -->
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Produção Total (kg)</h2>
+        <div class="h-80">
+          <canvas id="productionChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Gráfico de Eficiência -->
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Eficiência (kg/h)</h2>
+        <div class="h-80">
+          <canvas id="efficiencyChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Gráfico de Horas Operacionais -->
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Horas Operacionais</h2>
+        <div class="h-80">
+          <canvas id="hoursChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Gráfico de Resíduos -->
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Resíduos e Previsões</h2>
+        <div class="h-80">
+          <canvas id="wasteChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Dados -->
+    <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Detalhamento por Mês</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mês</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produção (kg)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eficiência (kg/h)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horas Operacionais</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resíduo (kg)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+            {% for i in range(data.months|length) %}
+            <tr class="{{ 'bg-gray-50' if loop.index % 2 == 0 else 'bg-white' }}">
+              <td class="px-6 py-4 whitespace-nowrap">{{ data.months[i] }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ "{:,.0f}".format(data.production[i]) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ "%.1f"|format(data.efficiency[i]) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ "{:,.0f}".format(data.hours[i]) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ "{:,.0f}".format(data.waste[i]) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                {% if data.is_forecast[i] %}
+                <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Previsão</span>
+                {% else %}
+                <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Real</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 flex justify-between items-center">
+        <div class="text-sm text-gray-500">Mostrando {{ data.months|length }} registros</div>
+      </div>
+    </div>
+
+    <!-- Insights e Recomendações -->
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Insights e Recomendações</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-blue-800 mb-2">📈 Tendência Positiva</h3>
+          <p class="text-blue-700">A produção aumentou {{ "%.1f"|format(data.metrics.variacao_producao) }}% em relação ao último mês histórico, indicando crescimento.</p>
+        </div>
+        <div class="bg-yellow-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-yellow-800 mb-2">⚠️ Atenção Necessária</h3>
+          <p class="text-yellow-700">As horas operacionais {{ "diminuíram" if data.metrics.variacao_horas < 0 else "aumentaram" }} {{ "%.1f"|format(data.metrics.variacao_horas|abs) }}%, verifique a capacidade produtiva.</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-green-800 mb-2">✅ Oportunidade</h3>
+          <p class="text-green-700">A eficiência aumentou {{ "%.1f"|format(data.metrics.variacao_eficiencia) }}%, indicando melhor utilização dos recursos.</p>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-purple-800 mb-2">💡 Sugestão</h3>
+          <p class="text-purple-700">Considere investir em manutenção preventiva para manter a tendência positiva de eficiência.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dados reais do backend
+    const allMonths = {{ data.months | tojson }};
+    const allProductionData = {{ data.production | tojson }};
+    const allEfficiencyData = {{ data.efficiency | tojson }};
+    const allHoursData = {{ data.hours | tojson }};
+    const allWasteData = {{ data.waste | tojson }};
+    const allMinExpectedData = {{ data.min_expected | tojson }};
+    const allMaxExpectedData = {{ data.max_expected | tojson }};
+    const allIsForecast = {{ data.is_forecast | tojson }};
+    const metrics = {{ data.metrics | tojson }};
+
+    // Variáveis para armazenar os gráficos
+    let productionChart, efficiencyChart, hoursChart, wasteChart;
+
+    // Aguardar o DOM carregar completamente
+    document.addEventListener('DOMContentLoaded', function() {
+      // Inicializar gráficos com todos os dados
+      initializeCharts(allMonths, allProductionData, allEfficiencyData, allHoursData, allWasteData, allIsForecast);
+      
+      // Adicionar event listener para o botão de aplicar filtros
+      document.getElementById('applyFilters').addEventListener('click', applyFilters);
+      
+      // Aplicar filtros ao carregar a página (com valores padrão)
+      applyFilters();
+    });
+
+    function applyFilters() {
+      const periodFilter = document.getElementById('periodFilter').value;
+      const viewType = document.getElementById('viewType').value;
+      
+      let filteredMonths, filteredProduction, filteredEfficiency, filteredHours, filteredWaste, filteredIsForecast;
+      
+      // Aplicar filtro de período
+      if (periodFilter === 'all') {
+        // Mostrar todos os dados
+        filteredMonths = [...allMonths];
+        filteredProduction = [...allProductionData];
+        filteredEfficiency = [...allEfficiencyData];
+        filteredHours = [...allHoursData];
+        filteredWaste = [...allWasteData];
+        filteredIsForecast = [...allIsForecast];
+      } else {
+        // Mostrar apenas os últimos X meses
+        const monthsToShow = parseInt(periodFilter);
+        filteredMonths = allMonths.slice(-monthsToShow);
+        filteredProduction = allProductionData.slice(-monthsToShow);
+        filteredEfficiency = allEfficiencyData.slice(-monthsToShow);
+        filteredHours = allHoursData.slice(-monthsToShow);
+        filteredWaste = allWasteData.slice(-monthsToShow);
+        filteredIsForecast = allIsForecast.slice(-monthsToShow);
+      }
+      
+      // Aplicar agregação por tipo de visualização
+      if (viewType === 'quarterly') {
+        // Agrupar por trimestre (implementação simplificada)
+        const quarterlyData = aggregateByQuarter(filteredMonths, filteredProduction, filteredEfficiency, filteredHours, filteredWaste, filteredIsForecast);
+        filteredMonths = quarterlyData.months;
+        filteredProduction = quarterlyData.production;
+        filteredEfficiency = quarterlyData.efficiency;
+        filteredHours = quarterlyData.hours;
+        filteredWaste = quarterlyData.waste;
+        filteredIsForecast = quarterlyData.isForecast;
+      } else if (viewType === 'yearly') {
+        // Agrupar por ano (implementação simplificada)
+        const yearlyData = aggregateByYear(filteredMonths, filteredProduction, filteredEfficiency, filteredHours, filteredWaste, filteredIsForecast);
+        filteredMonths = yearlyData.months;
+        filteredProduction = yearlyData.production;
+        filteredEfficiency = yearlyData.efficiency;
+        filteredHours = yearlyData.hours;
+        filteredWaste = yearlyData.waste;
+        filteredIsForecast = yearlyData.isForecast;
+      }
+      
+      // Atualizar gráficos com dados filtrados
+      updateCharts(filteredMonths, filteredProduction, filteredEfficiency, filteredHours, filteredWaste, filteredIsForecast);
+      
+      // Atualizar tabela com dados filtrados
+      updateTable(filteredMonths, filteredProduction, filteredEfficiency, filteredHours, filteredWaste, filteredIsForecast);
+    }
+
+    function aggregateByQuarter(months, production, efficiency, hours, waste, isForecast) {
+      // Implementação simplificada de agrupamento por trimestre
+      const quarters = {};
+      
+      months.forEach((month, index) => {
+        const year = month.split('-')[0];
+        const monthNum = parseInt(month.split('-')[1]);
+        const quarter = Math.floor((monthNum - 1) / 3) + 1;
+        const quarterKey = `T${quarter}-${year}`;
+        
+        if (!quarters[quarterKey]) {
+          quarters[quarterKey] = {
+            months: [],
+            production: [],
+            efficiency: [],
+            hours: [],
+            waste: [],
+            isForecast: []
+          };
+        }
+        
+        quarters[quarterKey].months.push(month);
+        quarters[quarterKey].production.push(production[index]);
+        quarters[quarterKey].efficiency.push(efficiency[index]);
+        quarters[quarterKey].hours.push(hours[index]);
+        quarters[quarterKey].waste.push(waste[index]);
+        quarters[quarterKey].isForecast.push(isForecast[index]);
+      });
+      
+      // Calcular médias para cada trimestre
+      const result = {
+        months: [],
+        production: [],
+        efficiency: [],
+        hours: [],
+        waste: [],
+        isForecast: []
+      };
+      
+      Object.keys(quarters).sort().forEach(quarterKey => {
+        const quarterData = quarters[quarterKey];
+        
+        result.months.push(quarterKey);
+        result.production.push(average(quarterData.production));
+        result.efficiency.push(average(quarterData.efficiency));
+        result.hours.push(sum(quarterData.hours));
+        result.waste.push(average(quarterData.waste));
+        // Considerar previsão se pelo menos um dos meses for previsão
+        result.isForecast.push(quarterData.isForecast.some(val => val));
+      });
+      
+      return result;
+    }
+
+    function aggregateByYear(months, production, efficiency, hours, waste, isForecast) {
+      // Implementação simplificada de agrupamento por ano
+      const years = {};
+      
+      months.forEach((month, index) => {
+        const year = month.split('-')[0];
+        
+        if (!years[year]) {
+          years[year] = {
+            months: [],
+            production: [],
+            efficiency: [],
+            hours: [],
+            waste: [],
+            isForecast: []
+          };
+        }
+        
+        years[year].months.push(month);
+        years[year].production.push(production[index]);
+        years[year].efficiency.push(efficiency[index]);
+        years[year].hours.push(hours[index]);
+        years[year].waste.push(waste[index]);
+        years[year].isForecast.push(isForecast[index]);
+      });
+      
+      // Calcular totais/médias para cada ano
+      const result = {
+        months: [],
+        production: [],
+        efficiency: [],
+        hours: [],
+        waste: [],
+        isForecast: []
+      };
+      
+      Object.keys(years).sort().forEach(year => {
+        const yearData = years[year];
+        
+        result.months.push(year);
+        result.production.push(sum(yearData.production));
+        result.efficiency.push(average(yearData.efficiency));
+        result.hours.push(sum(yearData.hours));
+        result.waste.push(sum(yearData.waste));
+        // Considerar previsão se pelo menos um dos meses for previsão
+        result.isForecast.push(yearData.isForecast.some(val => val));
+      });
+      
+      return result;
+    }
+
+    function average(arr) {
+      return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+
+    function sum(arr) {
+      return arr.reduce((a, b) => a + b, 0);
+    }
+
+    function updateTable(months, production, efficiency, hours, waste, isForecast) {
+      const tableBody = document.getElementById('dataTableBody');
+      tableBody.innerHTML = '';
+      
+      months.forEach((month, index) => {
+        const row = document.createElement('tr');
+        row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">${month}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${production[index].toLocaleString('pt-BR')}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${efficiency[index].toFixed(1)}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${hours[index].toLocaleString('pt-BR')}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${waste[index].toLocaleString('pt-BR')}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs ${isForecast[index] ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'} rounded-full">
+              ${isForecast[index] ? 'Previsão' : 'Real'}
+            </span>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+      
+      // Atualizar contador de registros
+      document.querySelector('.text-sm.text-gray-500').textContent = `Mostrando ${months.length} registros`;
+    }
+
+    function initializeCharts(months, production, efficiency, hours, waste, isForecast) {
+      // Gráfico de Produção
+      const productionCtx = document.getElementById('productionChart');
+      if (productionCtx) {
+        productionChart = new Chart(productionCtx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: months,
+            datasets: [{
+              label: 'Produção Real',
+              data: production.filter((_, i) => !isForecast[i]),
+              borderColor: '#284CFF',
+              backgroundColor: 'rgba(40, 76, 255, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3
+            }, {
+              label: 'Previsão',
+              data: production.map((val, i) => isForecast[i] ? val : null),
+              borderColor: '#FF6384',
+              borderDash: [5, 5],
+              borderWidth: 2,
+              fill: false,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                ticks: {
+                  callback: function (value) {
+                    return value.toLocaleString('pt-BR') + ' kg';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Gráfico de Eficiência
+      const efficiencyCtx = document.getElementById('efficiencyChart');
+      if (efficiencyCtx) {
+        efficiencyChart = new Chart(efficiencyCtx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: months,
+            datasets: [{
+              label: 'Eficiência (kg/h)',
+              data: efficiency,
+              backgroundColor: months.map((_, i) =>
+                isForecast[i] ? 'rgba(255, 99, 132, 0.7)' : 'rgba(75, 192, 192, 0.7)'
+              ),
+              borderColor: months.map((_, i) =>
+                isForecast[i] ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)'
+              ),
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: false
+              }
+            }
+          }
+        });
+      }
+
+      // Gráfico de Horas Operacionais
+      const hoursCtx = document.getElementById('hoursChart');
+      if (hoursCtx) {
+        hoursChart = new Chart(hoursCtx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: months,
+            datasets: [{
+              label: 'Horas Operacionais',
+              data: hours,
+              borderColor: 'rgba(153, 102, 255, 1)',
+              backgroundColor: 'rgba(153, 102, 255, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: false
+              }
+            }
+          }
+        });
+      }
+
+      // Gráfico de Resíduos
+      const wasteCtx = document.getElementById('wasteChart');
+      if (wasteCtx) {
+        wasteChart = new Chart(wasteCtx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: months,
+            datasets: [{
+              label: 'Resíduos (kg)',
+              data: waste,
+              backgroundColor: months.map((_, i) =>
+                isForecast[i] ? 'rgba(255, 159, 64, 0.7)' : 'rgba(54, 162, 235, 0.7)'
+              ),
+              borderColor: months.map((_, i) =>
+                isForecast[i] ? 'rgba(255, 159, 64, 1)' : 'rgba(54, 162, 235, 1)'
+              ),
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateCharts(months, production, efficiency, hours, waste, isForecast) {
+      // Atualizar gráfico de produção
+      if (productionChart) {
+        productionChart.data.labels = months;
+        productionChart.data.datasets[0].data = production.filter((_, i) => !isForecast[i]);
+        productionChart.data.datasets[1].data = production.map((val, i) => isForecast[i] ? val : null);
+        productionChart.update();
+      }
+      
+      // Atualizar gráfico de eficiência
+      if (efficiencyChart) {
+        efficiencyChart.data.labels = months;
+        efficiencyChart.data.datasets[0].data = efficiency;
+        efficiencyChart.data.datasets[0].backgroundColor = months.map((_, i) =>
+          isForecast[i] ? 'rgba(255, 99, 132, 0.7)' : 'rgba(75, 192, 192, 0.7)'
+        );
+        efficiencyChart.data.datasets[0].borderColor = months.map((_, i) =>
+          isForecast[i] ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)'
+        );
+        efficiencyChart.update();
+      }
+      
+      // Atualizar gráfico de horas operacionais
+      if (hoursChart) {
+        hoursChart.data.labels = months;
+        hoursChart.data.datasets[0].data = hours;
+        hoursChart.update();
+      }
+      
+      // Atualizar gráfico de resíduos
+      if (wasteChart) {
+        wasteChart.data.labels = months;
+        wasteChart.data.datasets[0].data = waste;
+        wasteChart.data.datasets[0].backgroundColor = months.map((_, i) =>
+          isForecast[i] ? 'rgba(255, 159, 64, 0.7)' : 'rgba(54, 162, 235, 0.7)'
+        );
+        wasteChart.data.datasets[0].borderColor = months.map((_, i) =>
+          isForecast[i] ? 'rgba(255, 159, 64, 1)' : 'rgba(54, 162, 235, 1)'
+        );
+        wasteChart.update();
+      }
+    }
+  </script>
+</body>
+</html>
