@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session
+# --- PASSO 1: Adicione "send_file" e "io" aos imports ---
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session, send_file
+import io 
 from werkzeug.utils import secure_filename
 # Supondo que process_file agora gerará 3 gráficos
 from ml._main import process_file 
@@ -71,6 +73,39 @@ def upload_file():
     else:
         flash('Tipo de arquivo não permitido! Envie apenas .xlsx ou .csv')
         return redirect(url_for('index'))
+
+# --- PASSO 2: Adicione a nova rota para o download do modelo aqui ---
+@app.route('/download/template')
+def download_template():
+    # Define as colunas que você quer no arquivo Excel
+    columns = [
+        'Mes', 
+        'Producao_Total_kg', 
+        'Eficiencia_kg_h', 
+        'Horas_Operacionais', 
+        'Residuo_kg'
+    ]
+    
+    # Cria um DataFrame do pandas vazio apenas com os cabeçalhos
+    df = pd.DataFrame(columns=columns)
+    
+    # Cria um buffer de bytes na memória para salvar o arquivo
+    output = io.BytesIO()
+    
+    # Salva o DataFrame como um arquivo Excel no buffer, sem o índice
+    df.to_excel(output, index=False, sheet_name='Dados')
+    
+    # Move o cursor para o início do buffer para que ele possa ser lido
+    output.seek(0)
+    
+    # Envia o arquivo em memória para o usuário como um anexo para download
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='modelo_waste_textile.xlsx'
+    )
+# -------------------------------------------------------------------------
 
 @app.route('/download/<filename>')
 def download_file_route(filename): # Renomeado para evitar conflito de nome
@@ -182,11 +217,11 @@ def process_data_for_dashboard(csv_path):
             
             # Calcular variações percentuais
             variacao_producao = ((primeira_previsao['Producao_Total_kg'] - ultimo_historico['Producao_Total_kg']) / 
-                                ultimo_historico['Producao_Total_kg']) * 100
+                                 ultimo_historico['Producao_Total_kg']) * 100
             variacao_eficiencia = ((primeira_previsao['Eficiencia_kg_h'] - ultimo_historico['Eficiencia_kg_h']) / 
-                                  ultimo_historico['Eficiencia_kg_h']) * 100
+                                   ultimo_historico['Eficiencia_kg_h']) * 100
             variacao_horas = ((primeira_previsao['Horas_Operacionais'] - ultimo_historico['Horas_Operacionais']) / 
-                             ultimo_historico['Horas_Operacionais']) * 100
+                              ultimo_historico['Horas_Operacionais']) * 100
             
             # Adicionar métricas ao dashboard_data
             dashboard_data['metrics'] = {
@@ -202,14 +237,10 @@ def process_data_for_dashboard(csv_path):
         else:
             # Valores padrão se não houver dados suficientes
             dashboard_data['metrics'] = {
-                'producao_total': 0,
-                'variacao_producao': 0,
-                'eficiencia': 0,
-                'variacao_eficiencia': 0,
-                'horas_operacionais': 0,
-                'variacao_horas': 0,
-                'residuo_estimado': 0,
-                'variacao_residuo': 0
+                'producao_total': 0, 'variacao_producao': 0,
+                'eficiencia': 0, 'variacao_eficiencia': 0,
+                'horas_operacionais': 0, 'variacao_horas': 0,
+                'residuo_estimado': 0, 'variacao_residuo': 0
             }
         
         # DEBUG: Verificar quantos registros temos

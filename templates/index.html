@@ -39,24 +39,106 @@
                         </button>
                     </div>
 
-                    <div class="w-2/3 bg-[#DBEFF7] p-8 flex flex-col items-center">
-                        <div class="text-center mt-[60px]">
+                    <div class="w-2/3 bg-[#DBEFF7] p-8 flex flex-col items-center relative">
+                        <div class="text-center mt-[30px]">
                             <h1 class="font-extrabold text-3xl">Waste Textile</h1>
                             <h2 class="font-medium text-base text-gray-700 mt-2">Preencha o Formulário</h2>
                         </div>
 
+                        <div id="carousel-container" class="relative w-[250px] mx-auto mt-7 mb-6 px-6">
+                            <div class="overflow-hidden">
+                                <div class="carousel-slide">
+                                    <h2 class="text-[11px] font-bold text-gray-800 mb-2 text-center">Mês</h2>
+                                    <p class="text-gray-600 text-center text-[9px] leading-relaxed">
+                                        Identifica o período (ano e mês) de referência para os dados registrados em cada
+                                        linha
+                                        da tabela.
+                                    </p>
+                                </div>
+
+                                <div class="carousel-slide hidden">
+                                    <h2 class="text-[11px] font-bold text-gray-800 mb-2 text-center">Produção Total (kg)
+                                    </h2>
+                                    <p class="text-gray-600 text-center text-[9px] leading-relaxed">
+                                        Representa a quantidade total, em quilogramas, de material que foi produzido
+                                        durante o
+                                        mês correspondente.
+                                    </p>
+                                </div>
+
+                                <div class="carousel-slide hidden">
+                                    <h2 class="text-[11px] font-bold text-gray-800 mb-2 text-center">Eficiência (kg/h)
+                                    </h2>
+                                    <p class="text-gray-600 text-center text-[9px] leading-relaxed">
+                                        Indica a média de quilos de material produzidos por cada hora de operação,
+                                        medindo a
+                                        produtividade da linha.
+                                    </p>
+                                </div>
+
+                                <div class="carousel-slide hidden">
+                                    <h2 class="text-[11px] font-bold text-gray-800 mb-2 text-center">Horas Operacionais
+                                    </h2>
+                                    <p class="text-gray-600 text-center text-[9px] leading-relaxed">
+                                        É a soma de horas em que a linha de produção esteve efetivamente ativa e
+                                        funcionando
+                                        durante o mês.
+                                    </p>
+                                </div>
+
+                                <div class="carousel-slide hidden">
+                                    <h2 class="text-[11px] font-bold text-gray-800 mb-2 text-center">Resíduo (kg)</h2>
+                                    <p class="text-gray-600 text-center text-[9px] leading-relaxed">
+                                        Mostra a quantidade total de resíduo, em quilogramas, gerada como subproduto do
+                                        processo
+                                        produtivo.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <button type="button" id="prev-button"
+                                class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-700 text-white p-1 rounded-full hover:bg-gray-600 focus:outline-none transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            <button type="button" id="next-button"
+                                class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-700 text-white p-1 rounded-full hover:bg-gray-600 focus:outline-none transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+
                         <input name="nome"
-                            class="bg-[#DFE1ED] rounded-2xl w-[480px] h-[60px] shadow-inner pl-5 placeholder:text-gray-400 placeholder:font-bold mt-[120px]"
+                            class="bg-[#DFE1ED] rounded-2xl w-[480px] h-[60px] shadow-inner pl-5 placeholder:text-gray-400 placeholder:font-bold mt-6"
                             id="file-name" type="text" placeholder="Nenhum arquivo selecionado" disabled>
 
                         <p id="error-msg" class="text-red-500 text-sm mt-2 hidden">Selecione um arquivo antes de
                             continuar.</p>
 
                         <button id="btn-submit" type="button"
-                            class="flex items-center justify-center text-white font-bold text-xl w-[200px] h-[60px] rounded-full bg-gray-400 uppercase mt-[56px] cursor-not-allowed"
+                            class="flex items-center justify-center text-white font-bold text-xl w-[200px] h-[60px] rounded-full bg-gray-400 uppercase mt-[40px] cursor-not-allowed"
                             disabled>
                             Cadastrar
                         </button>
+
+                        <a href="/download/template"
+                            class="absolute bottom-2 right-2 inline-flex items-center gap-2 bg-[#0A1C36] text-white font-semibold text-sm px-4 py-2 rounded-full hover:bg-opacity-80 transition shadow-md"
+                            download>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Baixar Modelo
+                        </a>
                     </div>
                 </div>
             </form>
@@ -123,74 +205,68 @@
 
 
     <script>
-        // DOM Elements
-        const stepUpload = document.getElementById('step-upload');
-        const stepProcessing = document.getElementById('step-processing');
-        const stepComplete = document.getElementById('step-complete');
-
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        const browseBtn = document.getElementById('browse-btn');
-        const fileNameDisplay = document.getElementById('file-name');
-        const submitBtn = document.getElementById('btn-submit');
-        const errorMsg = document.getElementById('error-msg');
-
-        // Switch screens
-        function showStep(step) {
-            stepUpload.classList.add('hidden');
-            stepProcessing.classList.add('hidden');
-            stepComplete.classList.add('hidden');
-            step.classList.remove('hidden');
-        }
-
-        function updateFileNameAndButton(file) {
-            if (file) {
-                fileNameDisplay.value = file.name;
-                submitBtn.disabled = false;
-                submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
-                submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
-                errorMsg.classList.add("hidden");
-            } else {
-                fileNameDisplay.value = "Nenhum arquivo selecionado";
-                submitBtn.disabled = true;
-                submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
-                submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
-            }
-        }
-
-        // File selection logic
-        fileInput.addEventListener('change', () => {
-            updateFileNameAndButton(fileInput.files.length > 0 ? fileInput.files[0] : null);
-        });
-
-        // Submit button click
-        submitBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (fileInput.files.length === 0) {
-                errorMsg.classList.remove("hidden");
-                return;
-            }
-            showStep(stepProcessing);
-            const form = document.querySelector('form');
-            form.submit();
-        });
-
-        // Browse button click
-        browseBtn.addEventListener('click', () => fileInput.click());
-
-        // Drag & Drop
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-blue-900'); });
-        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('bg-blue-900'); });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('bg-blue-900');
-            if (e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
-                updateFileNameAndButton(fileInput.files[0]);
-            }
-        });
-
         window.addEventListener("DOMContentLoaded", () => {
+            // --- LÓGICA ORIGINAL DA PÁGINA ---
+            const stepUpload = document.getElementById('step-upload');
+            const stepProcessing = document.getElementById('step-processing');
+            const stepComplete = document.getElementById('step-complete');
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const browseBtn = document.getElementById('browse-btn');
+            const fileNameDisplay = document.getElementById('file-name');
+            const submitBtn = document.getElementById('btn-submit');
+            const errorMsg = document.getElementById('error-msg');
+
+            function showStep(step) {
+                stepUpload.classList.add('hidden');
+                stepProcessing.classList.add('hidden');
+                stepComplete.classList.add('hidden');
+                step.classList.remove('hidden');
+            }
+
+            function updateFileNameAndButton(file) {
+                if (file) {
+                    fileNameDisplay.value = file.name;
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
+                    submitBtn.classList.add("bg-[#284CFF]", "hover:bg-blue-500");
+                    errorMsg.classList.add("hidden");
+                } else {
+                    fileNameDisplay.value = "Nenhum arquivo selecionado";
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add("bg-gray-400", "cursor-not-allowed");
+                    submitBtn.classList.remove("bg-[#284CFF]", "hover:bg-blue-500");
+                }
+            }
+
+            fileInput.addEventListener('change', () => {
+                updateFileNameAndButton(fileInput.files.length > 0 ? fileInput.files[0] : null);
+            });
+
+            submitBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (fileInput.files.length === 0) {
+                    errorMsg.classList.remove("hidden");
+                    return;
+                }
+                showStep(stepProcessing);
+                const form = document.querySelector('form');
+                form.submit();
+            });
+
+            browseBtn.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-blue-900'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('bg-blue-900'); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('bg-blue-900');
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    updateFileNameAndButton(fileInput.files[0]);
+                }
+            });
+
             const urlParams = new URLSearchParams(window.location.search);
             const uploadSuccess = urlParams.get('upload');
             updateFileNameAndButton(null);
@@ -198,8 +274,6 @@
 
             if (uploadSuccess === 'success') {
                 history.replaceState(null, '', window.location.pathname);
-
-                // --- LÓGICA PARA PEGAR OS DADOS ---
                 const sessionData = document.getElementById('session-data').dataset;
                 const sessionCsvFile = sessionData.csvFile;
                 const fig1_name = sessionData.fig1;
@@ -208,13 +282,11 @@
 
                 showStep(stepComplete);
 
-                // Configura link de download
                 const downloadLink = document.getElementById('download-link');
                 if (downloadLink && sessionCsvFile) {
                     downloadLink.href = `/download/${encodeURIComponent(sessionCsvFile)}`;
                 }
 
-                // Configura os gráficos
                 const chart1 = document.getElementById('chart1');
                 const chart2 = document.getElementById('chart2');
                 const chart3 = document.getElementById('chart3');
@@ -222,10 +294,45 @@
                 if (chart1 && fig1_name) chart1.src = `/plots/${encodeURIComponent(fig1_name)}`;
                 if (chart2 && fig2_name) chart2.src = `/plots/${encodeURIComponent(fig2_name)}`;
                 if (chart3 && fig3_name) chart3.src = `/plots/${encodeURIComponent(fig3_name)}`;
-
             } else {
                 showStep(stepUpload);
             }
+
+            // --- LÓGICA DO CARROSSEL ADICIONADA AQUI ---
+            const carouselSlides = document.querySelectorAll('.carousel-slide');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+
+            let currentSlide = 0;
+
+            function showCarouselSlide(index) {
+                if (index >= carouselSlides.length) {
+                    currentSlide = 0;
+                } else if (index < 0) {
+                    currentSlide = carouselSlides.length - 1;
+                } else {
+                    currentSlide = index;
+                }
+
+                carouselSlides.forEach((slide, i) => {
+                    if (i === currentSlide) {
+                        slide.classList.remove('hidden');
+                    } else {
+                        slide.classList.add('hidden');
+                    }
+                });
+            }
+
+            nextButton.addEventListener('click', function () {
+                showCarouselSlide(currentSlide + 1);
+            });
+
+            prevButton.addEventListener('click', function () {
+                showCarouselSlide(currentSlide - 1);
+            });
+
+            // Inicializa o carrossel
+            showCarouselSlide(currentSlide);
         });
     </script>
 </body>
