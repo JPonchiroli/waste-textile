@@ -6,11 +6,13 @@ from werkzeug.utils import secure_filename
 from ml._main import process_file 
 import pandas as pd
 import os
-
 import matplotlib
 # Usar backend não interativo para evitar problemas com threads
 matplotlib.use('Agg')  # Usar backend não interativo
 import matplotlib.pyplot as plt
+import base64
+import boto3
+import json
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'xlsx', 'csv'}
@@ -18,6 +20,9 @@ ALLOWED_EXTENSIONS = {'xlsx', 'csv'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'waste-textile-secret-key' # Use uma chave mais segura em produção
+
+# Cliente boto3 para invocar a Lambda
+lambda_client = boto3.client('lambda', region_name='us-east-1')
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -77,28 +82,31 @@ def upload_file():
 # --- PASSO 2: Adicione a nova rota para o download do modelo aqui ---
 @app.route('/download/template')
 def download_template():
-    # Define as colunas que você quer no arquivo Excel
-    columns = [
-        'Mes', 
-        'Producao_Total_kg', 
-        'Eficiencia_kg_h', 
-        'Horas_Operacionais', 
-        'Residuo_kg'
-    ]
-    
-    # Cria um DataFrame do pandas vazio apenas com os cabeçalhos
-    df = pd.DataFrame(columns=columns)
-    
-    # Cria um buffer de bytes na memória para salvar o arquivo
-    output = io.BytesIO()
-    
-    # Salva o DataFrame como um arquivo Excel no buffer, sem o índice
-    df.to_excel(output, index=False, sheet_name='Dados')
-    
-    # Move o cursor para o início do buffer para que ele possa ser lido
+    # Nome da sua função Lambda
+    function_name = 'upload_base'
+
+    # Invoca a Lambda
+    response = lambda_client.invoke(
+        FunctionName=function_name,
+        Payload=json.dumps({})  # Evento vazio
+    )
+
+    # Lê o payload retornado
+    payload = json.loads(response['Payload'].read())
+
+    # Verifica se houve erro
+    if payload.get('statusCode') != 200:
+        return f"Erro ao gerar arquivo: {payload.get('body')}", 500
+
+    # Decodifica o conteúdo base64 retornado pela Lambda
+    content_base64 = payload['body']
+    content_bytes = base64.b64decode(content_base64)
+
+    # Cria um buffer de bytes em memória
+    output = io.BytesIO(content_bytes)
     output.seek(0)
-    
-    # Envia o arquivo em memória para o usuário como um anexo para download
+
+    # Envia o arquivo como download
     return send_file(
         output,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
