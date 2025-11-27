@@ -4,3 +4,11 @@ seaborn==0.13.2
 statsmodels==0.14.5
 openpyxl==3.1.3
 pandas==2.3.1
+
+# === MONITORAMENTO ===
+prometheus-client==0.21.0
+pynvml==11.5.0
+psutil==6.1.0
+
+# === GERADOR MOCK ===
+APScheduler==3.10.4

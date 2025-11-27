@@ -6,6 +6,9 @@ from werkzeug.utils import secure_filename
 from ml._main import process_file 
 import pandas as pd
 import os
+from prometheus_client import start_http_server
+from mock_producer import start_mock_producer
+from metrics import log_event, start_metrics_refresh
 
 import matplotlib
 # Usar backend não interativo para evitar problemas com threads
@@ -270,4 +273,8 @@ def process_data_for_dashboard(csv_path):
         }
 
 if __name__ == '__main__':
+    start_mock_producer(interval_seconds=30)  # gera 1 arquivo mock a cada 30 s
+    log_event("startup", {"msg": "app started"})
+    start_http_server(8000) 
+    start_metrics_refresh()
     app.run(debug=True, port=5001)

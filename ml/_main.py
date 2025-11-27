@@ -2,8 +2,11 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from metrics import metrics_wrapper, log_event
 
+@metrics_wrapper
 def process_file(input_path, output_dir):
+    log_event("prediction_start", {"file": input_path})
     """
     Lê um arquivo de dados, gera previsões para 12 meses, salva um Excel 
     com os resultados e cria 3 gráficos de visualização.
@@ -153,4 +156,5 @@ def process_file(input_path, output_dir):
 
     # --- 12. RETORNO CORRIGIDO ---
     # Agora retorna o caminho do Excel e a LISTA com os 3 caminhos dos gráficos.
+    log_event("prediction_done", {"file": input_path, "out": out_path})
     return out_path, fig_paths
