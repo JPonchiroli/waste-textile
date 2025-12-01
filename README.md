@@ -134,3 +134,9 @@ venv\Scripts\activate
 # 3. Instalar dependências
 pip install -r requirements.txt
 
+
+
+### Subir container
+``
+Prometheus: docker run -d --name prometheus -p 9090:9090 -v /c/Users/joaop/projetos/waste-textile/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+``
