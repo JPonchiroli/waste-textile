@@ -1,4 +1,28 @@
+# Virtual env
 venv/
-*.png
-*.csv
+
+# Pycache
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+*.env
+
+# Logs
 *.log
+
+# Docker volumes / data
+grafana_data/
+prometheus_data/
+data/
+
+# VSCode
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Mocks
+uploads/mock
