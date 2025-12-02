@@ -6,9 +6,10 @@ from werkzeug.utils import secure_filename
 from ml._main import process_file 
 import pandas as pd
 import os
-from prometheus_client import start_http_server
 from mock_producer import start_mock_producer
 from metrics import log_event, start_metrics_refresh
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from flask import Response
 
 import matplotlib
 # Usar backend não interativo para evitar problemas com threads
@@ -130,6 +131,15 @@ def serve_plot(filename):
     if filename not in allowed_files:
         return 'Acesso não permitido', 403
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/metrics')
+def metrics_endpoint():
+    try:
+        from prometheus_client import REGISTRY
+        data = generate_latest(REGISTRY)
+        return Response(data, mimetype=CONTENT_TYPE_LATEST)
+    except Exception as e:
+        return Response(f"Erro ao gerar métricas: {str(e)}", status=500)
 
 @app.route('/dashboard')
 def dashboard():
@@ -273,8 +283,14 @@ def process_data_for_dashboard(csv_path):
         }
 
 if __name__ == '__main__':
-    start_mock_producer(interval_seconds=30)  # gera 1 arquivo mock a cada 30 s
-    log_event("startup", {"msg": "app started"})
-    start_http_server(8080, addr='0.0.0.0') 
-    start_metrics_refresh()
-    app.run(debug=True, port=5001)
+    # Vamos iniciar de forma simples e direta para garantir que rode
+    try:
+        print("--- INICIANDO SISTEMA DE MOCK E MÉTRICAS ---")
+        start_mock_producer(interval_seconds=15)
+        start_metrics_refresh()
+        log_event("startup", {"msg": "app started - producers running"})
+    except Exception as e:
+        print(f"ERRO AO INICIAR PRODUCERS: {e}")
+
+    # Rode sem o reloader por enquanto para evitar duplicidade e garantir que vejamos os erros
+    app.run(debug=True, use_reloader=False, port=5001)
