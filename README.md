@@ -136,7 +136,8 @@ pip install -r requirements.txt
 
 
 
-### Subir container
+### Rodar Docker com Grafana e Prometheus
 ``
-Prometheus: docker run -d --name prometheus -p 9090:9090 -v /c/Users/joaop/projetos/waste-textile/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+docker-compose up -d
+Isso iniciará o Grafana na porta 3000 e o Prometheus na porta 9090.
 ``
