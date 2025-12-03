@@ -1,14 +1,6 @@
 version: '3.8'
 
 services:
-  app:
-    build: .                # usa Dockerfile na mesma pasta
-    ports:
-      - "5001:5001"         # expõe para 0.0.0.0
-    environment:
-      - FLASK_ENV=production
-    restart: unless-stopped
-
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -17,7 +9,7 @@ services:
     ports:
       - "9090:9090"
     extra_hosts:
-      - "host.docker.internal:host-gateway"   # só se precisar scrape fora
+      - "host.docker.internal:host-gateway"
 
   grafana:
     image: grafana/grafana:latest
