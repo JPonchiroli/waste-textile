@@ -445,7 +445,7 @@
             labels: months,
             datasets: [{
               label: 'Produção Real',
-              data: production.filter((_, i) => !isForecast[i]),
+              data: production.map((val, i) => !isForecast[i] ? val : null),
               borderColor: '#284CFF',
               backgroundColor: 'rgba(40, 76, 255, 0.1)',
               borderWidth: 2,
@@ -579,7 +579,7 @@
       // Atualizar gráfico de produção
       if (productionChart) {
         productionChart.data.labels = months;
-        productionChart.data.datasets[0].data = production.filter((_, i) => !isForecast[i]);
+        productionChart.data.datasets[0].data = production.map((val, i) => !isForecast[i] ? val : null);
         productionChart.data.datasets[1].data = production.map((val, i) => isForecast[i] ? val : null);
         productionChart.update();
       }

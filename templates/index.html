@@ -187,7 +187,7 @@
                 <a id="download-link" href="#"
                     class="inline-flex items-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition shadow-xl"
                     download>
-                    Baixar Arquivo Processado (.csv)
+                    Baixar Arquivo Processado (.xlsx)
                 </a>
 
                 <a href="/dashboard"
@@ -198,7 +198,7 @@
         </article>
     </main>
 
-    <div id="session-data" data-csv-file="{{ session.get('last_processed_file', '') }}"
+    <div id="session-data" data-processed-file="{{ session.get('last_processed_file', '') }}"
         data-fig1="{{ session.get('fig1', '') }}" data-fig2="{{ session.get('fig2', '') }}"
         data-fig3="{{ session.get('fig3', '') }}">
     </div>
@@ -275,7 +275,7 @@
             if (uploadSuccess === 'success') {
                 history.replaceState(null, '', window.location.pathname);
                 const sessionData = document.getElementById('session-data').dataset;
-                const sessionCsvFile = sessionData.csvFile;
+                const sessionProcessedFile = sessionData.processedFile;
                 const fig1_name = sessionData.fig1;
                 const fig2_name = sessionData.fig2;
                 const fig3_name = sessionData.fig3;
@@ -283,8 +283,8 @@
                 showStep(stepComplete);
 
                 const downloadLink = document.getElementById('download-link');
-                if (downloadLink && sessionCsvFile) {
-                    downloadLink.href = `/download/${encodeURIComponent(sessionCsvFile)}`;
+                if (downloadLink && sessionProcessedFile) {
+                    downloadLink.href = `/download/${encodeURIComponent(sessionProcessedFile)}`;
                 }
 
                 const chart1 = document.getElementById('chart1');
