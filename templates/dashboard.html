@@ -8,8 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+  <style>
+    .chart-container {
+      transition: opacity 0.3s ease-in-out;
+    }
+    .chart-loading {
+      opacity: 0.5;
+    }
+  </style>
 
 <body class="font-[Poppins] bg-gray-50">
   <div class="container mx-auto px-4 py-8">
@@ -25,7 +31,7 @@
     </header>
 
     <!-- Cards de Métricas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       <div class="bg-white p-6 rounded-xl shadow-md">
         <h3 class="text-gray-500 text-sm font-medium mb-2">Produção Total</h3>
         <p class="text-3xl font-bold text-gray-800">
@@ -89,27 +95,51 @@
           <span class="text-gray-400 text-sm ml-2">vs último mês histórico</span>
         </div>
       </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-gray-500 text-sm font-medium mb-2">Potencial de Reciclagem</h3>
+        <p class="text-3xl font-bold text-gray-800">
+          {{ "%.1f"|format(data.metrics.recycling_potential) }}
+          <span class="text-sm text-gray-500">%</span>
+        </p>
+        <p class="text-gray-500 text-sm mt-2">Estimativa do percentual de resíduo que pode ser reaproveitado.</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-gray-500 text-sm font-medium mb-2">Economia Estimada</h3>
+        <p class="text-3xl font-bold text-gray-800">
+          R$ {{ "{:,.2f}".format(data.metrics.recycling_savings) }}
+        </p>
+        <p class="text-gray-500 text-sm mt-2">Economia prevista ao reciclar o resíduo em vez de comprar material novo.</p>
+      </div>
     </div>
 
     <!-- Filtros -->
     <div class="bg-white p-4 rounded-xl shadow-md mb-8">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between">
         <h2 class="text-lg font-semibold text-gray-800 mb-4 md:mb-0">Filtros de Período</h2>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <select id="periodFilter" class="bg-gray-100 border-0 rounded-lg px-4 py-2">
-            <option value="3">Últimos 3 meses</option>
-            <option value="6">Últimos 6 meses</option>
-            <option value="12" selected>Últimos 12 meses</option>
-            <option value="all">Período completo</option>
-          </select>
-          <select id="viewType" class="bg-gray-100 border-0 rounded-lg px-4 py-2">
-            <option value="monthly" selected>Visão mensal</option>
-            <option value="quarterly">Visão trimestral</option>
-            <option value="yearly">Visão anual</option>
-          </select>
-          <button id="applyFilters" class="bg-[#0A1C36] text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition">
-            Aplicar Filtros
-          </button>
+        <div class="flex flex-col sm:flex-row gap-4 items-center">
+          <div class="flex items-center gap-2">
+            <label for="periodFilter" class="text-sm text-gray-600">Período:</label>
+            <select id="periodFilter" class="bg-gray-100 border-0 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+              <option value="1">Último mês</option>
+              <option value="3">Últimos 3 meses</option>
+              <option value="6">Últimos 6 meses</option>
+              <option value="12" selected>Últimos 12 meses</option>
+              <option value="all">Período completo</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="viewType" class="text-sm text-gray-600">Visualização:</label>
+            <select id="viewType" class="bg-gray-100 border-0 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+              <option value="monthly" selected>Mensal</option>
+              <option value="quarterly">Trimestral</option>
+              <option value="yearly">Anual</option>
+            </select>
+          </div>
+          <div class="text-xs text-gray-500 italic">
+            Filtros aplicados automaticamente
+          </div>
         </div>
       </div>
     </div>
@@ -117,7 +147,7 @@
     <!-- Gráficos -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
       <!-- Gráfico de Produção -->
-      <div class="bg-white p-6 rounded-xl shadow-md">
+      <div class="bg-white p-6 rounded-xl shadow-md chart-container">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Produção Total (kg)</h2>
         <div class="h-80">
           <canvas id="productionChart"></canvas>
@@ -125,7 +155,7 @@
       </div>
       
       <!-- Gráfico de Eficiência -->
-      <div class="bg-white p-6 rounded-xl shadow-md">
+      <div class="bg-white p-6 rounded-xl shadow-md chart-container">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Eficiência (kg/h)</h2>
         <div class="h-80">
           <canvas id="efficiencyChart"></canvas>
@@ -133,7 +163,7 @@
       </div>
       
       <!-- Gráfico de Horas Operacionais -->
-      <div class="bg-white p-6 rounded-xl shadow-md">
+      <div class="bg-white p-6 rounded-xl shadow-md chart-container">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Horas Operacionais</h2>
         <div class="h-80">
           <canvas id="hoursChart"></canvas>
@@ -141,7 +171,7 @@
       </div>
       
       <!-- Gráfico de Resíduos -->
-      <div class="bg-white p-6 rounded-xl shadow-md">
+      <div class="bg-white p-6 rounded-xl shadow-md chart-container">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Resíduos e Previsões</h2>
         <div class="h-80">
           <canvas id="wasteChart"></canvas>
@@ -220,6 +250,9 @@
     const allEfficiencyData = {{ data.efficiency | tojson }};
     const allHoursData = {{ data.hours | tojson }};
     const allWasteData = {{ data.waste | tojson }};
+    const allRecyclingPotentialData = {{ data.recycling_potential | tojson }};
+    const allRecycledWasteData = {{ data.recycled_waste | tojson }};
+    const allRecyclingSavingsData = {{ data.recycling_savings | tojson }};
     const allMinExpectedData = {{ data.min_expected | tojson }};
     const allMaxExpectedData = {{ data.max_expected | tojson }};
     const allIsForecast = {{ data.is_forecast | tojson }};
@@ -233,14 +266,19 @@
       // Inicializar gráficos com todos os dados
       initializeCharts(allMonths, allProductionData, allEfficiencyData, allHoursData, allWasteData, allIsForecast);
       
-      // Adicionar event listener para o botão de aplicar filtros
-      document.getElementById('applyFilters').addEventListener('click', applyFilters);
+      // Adicionar event listeners para filtros automáticos
+      document.getElementById('periodFilter').addEventListener('change', applyFilters);
+      document.getElementById('viewType').addEventListener('change', applyFilters);
       
       // Aplicar filtros ao carregar a página (com valores padrão)
       applyFilters();
     });
 
     function applyFilters() {
+      // Mostrar indicador de carregamento
+      const filterSection = document.querySelector('.bg-white.p-4.rounded-xl.shadow-md.mb-8');
+      filterSection.style.opacity = '0.7';
+      
       const periodFilter = document.getElementById('periodFilter').value;
       const viewType = document.getElementById('viewType').value;
       
@@ -292,6 +330,11 @@
       
       // Atualizar tabela com dados filtrados
       updateTable(filteredMonths, filteredProduction, filteredEfficiency, filteredHours, filteredWaste, filteredIsForecast);
+      
+      // Esconder indicador de carregamento
+      setTimeout(() => {
+        filterSection.style.opacity = '1';
+      }, 200);
     }
 
     function aggregateByQuarter(months, production, efficiency, hours, waste, isForecast) {
@@ -576,46 +619,56 @@
     }
 
     function updateCharts(months, production, efficiency, hours, waste, isForecast) {
-      // Atualizar gráfico de produção
-      if (productionChart) {
-        productionChart.data.labels = months;
-        productionChart.data.datasets[0].data = production.map((val, i) => !isForecast[i] ? val : null);
-        productionChart.data.datasets[1].data = production.map((val, i) => isForecast[i] ? val : null);
-        productionChart.update();
-      }
+      // Adicionar efeito de loading aos gráficos
+      const chartContainers = document.querySelectorAll('.chart-container');
+      chartContainers.forEach(container => container.classList.add('chart-loading'));
       
-      // Atualizar gráfico de eficiência
-      if (efficiencyChart) {
-        efficiencyChart.data.labels = months;
-        efficiencyChart.data.datasets[0].data = efficiency;
-        efficiencyChart.data.datasets[0].backgroundColor = months.map((_, i) =>
-          isForecast[i] ? 'rgba(255, 99, 132, 0.7)' : 'rgba(75, 192, 192, 0.7)'
-        );
-        efficiencyChart.data.datasets[0].borderColor = months.map((_, i) =>
-          isForecast[i] ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)'
-        );
-        efficiencyChart.update();
-      }
-      
-      // Atualizar gráfico de horas operacionais
-      if (hoursChart) {
-        hoursChart.data.labels = months;
-        hoursChart.data.datasets[0].data = hours;
-        hoursChart.update();
-      }
-      
-      // Atualizar gráfico de resíduos
-      if (wasteChart) {
-        wasteChart.data.labels = months;
-        wasteChart.data.datasets[0].data = waste;
-        wasteChart.data.datasets[0].backgroundColor = months.map((_, i) =>
-          isForecast[i] ? 'rgba(255, 159, 64, 0.7)' : 'rgba(54, 162, 235, 0.7)'
-        );
-        wasteChart.data.datasets[0].borderColor = months.map((_, i) =>
-          isForecast[i] ? 'rgba(255, 159, 64, 1)' : 'rgba(54, 162, 235, 1)'
-        );
-        wasteChart.update();
-      }
+      // Pequeno delay para mostrar o efeito visual
+      setTimeout(() => {
+        // Atualizar gráfico de produção
+        if (productionChart) {
+          productionChart.data.labels = months;
+          productionChart.data.datasets[0].data = production.map((val, i) => !isForecast[i] ? val : null);
+          productionChart.data.datasets[1].data = production.map((val, i) => isForecast[i] ? val : null);
+          productionChart.update('none'); // 'none' para atualização instantânea
+        }
+        
+        // Atualizar gráfico de eficiência
+        if (efficiencyChart) {
+          efficiencyChart.data.labels = months;
+          efficiencyChart.data.datasets[0].data = efficiency;
+          efficiencyChart.data.datasets[0].backgroundColor = months.map((_, i) =>
+            isForecast[i] ? 'rgba(255, 99, 132, 0.7)' : 'rgba(75, 192, 192, 0.7)'
+          );
+          efficiencyChart.data.datasets[0].borderColor = months.map((_, i) =>
+            isForecast[i] ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)'
+          );
+          efficiencyChart.update('none');
+        }
+        
+        // Atualizar gráfico de horas operacionais
+        if (hoursChart) {
+          hoursChart.data.labels = months;
+          hoursChart.data.datasets[0].data = hours;
+          hoursChart.update('none');
+        }
+        
+        // Atualizar gráfico de resíduos
+        if (wasteChart) {
+          wasteChart.data.labels = months;
+          wasteChart.data.datasets[0].data = waste;
+          wasteChart.data.datasets[0].backgroundColor = months.map((_, i) =>
+            isForecast[i] ? 'rgba(255, 159, 64, 0.7)' : 'rgba(54, 162, 235, 0.7)'
+          );
+          wasteChart.data.datasets[0].borderColor = months.map((_, i) =>
+            isForecast[i] ? 'rgba(255, 159, 64, 1)' : 'rgba(54, 162, 235, 1)'
+          );
+          wasteChart.update('none');
+        }
+        
+        // Remover efeito de loading
+        chartContainers.forEach(container => container.classList.remove('chart-loading'));
+      }, 100);
     }
   </script>
 </body>

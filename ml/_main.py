@@ -5,11 +5,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing, SimpleExpSmoothing
 
+from ml.model import load_or_train_model, predict_recycling_metrics
 
 REQUIRED_COLS = ['Mes', 'Producao_Total_kg', 'Eficiencia_kg_h', 'Horas_Operacionais']
 FORECAST_PERIODS = 12
 WASTE_RATE = 0.10
 RANGE_RATE = 0.05
+
+MODEL, SCALER = load_or_train_model()
 
 
 def _read_input_file(input_path):
@@ -78,8 +81,19 @@ def _prepare_monthly_data(df):
     monthly['Producao_Minima_Esperada'] = np.nan
     monthly['Producao_Maxima_Esperada'] = np.nan
     monthly['Tipo_Dado'] = 'Historico'
+    monthly = monthly.reset_index(drop=True)
+    monthly = _add_recycling_predictions(monthly)
 
-    return monthly.reset_index(drop=True)
+    return monthly
+
+
+def _add_recycling_predictions(df):
+    predictions = predict_recycling_metrics(df, SCALER, MODEL)
+    return df.merge(
+        predictions,
+        on='Mes',
+        how='left'
+    )
 
 
 def _naive_forecast(train, periods):
@@ -212,6 +226,7 @@ def _build_forecast_df(df, periods=FORECAST_PERIODS):
     forecast_df['Tipo_Dado'] = 'Previsao'
     forecast_df['Modelo_Eficiencia'] = eff_model
     forecast_df['Modelo_Horas'] = hours_model
+    forecast_df = _add_recycling_predictions(forecast_df)
 
     return forecast_df
 
@@ -241,6 +256,9 @@ def process_file(input_path, output_dir):
         'Eficiencia_kg_h',
         'Horas_Operacionais',
         'Residuo_kg',
+        'Potencial_Reciclagem_Percent',
+        'Residuo_Reciclavel_kg',
+        'Economia_RS',
         'Producao_Minima_Esperada',
         'Producao_Maxima_Esperada',
         'Modelo_Eficiencia',

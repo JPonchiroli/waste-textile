@@ -157,59 +157,13 @@
             </div>
         </article>
 
-        <article id="step-complete"
-            class="hidden flex flex-col justify-center items-center min-h-screen bg-gray-50 py-12">
-            <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg w-full max-w-screen-xl">
-                <div class="flex items-center gap-3 mb-4">
-                    <h1 class="text-3xl font-bold text-gray-800">Upload Concluído!</h1>
-                    <svg class="w-16 h-16 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-                <p class="text-gray-600 mb-8">Seu arquivo foi processado. Veja os gráficos abaixo e faça o download
-                    dos dados.</p>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8">
-                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-center mb-2">Gráfico 1</h3>
-                        <img id="chart1" src="" alt="Gráfico 1" class="w-full h-auto rounded">
-                    </div>
-                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-center mb-2">Gráfico 2</h3>
-                        <img id="chart2" src="" alt="Gráfico 2" class="w-full h-auto rounded">
-                    </div>
-                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-bold text-center mb-2">Gráfico 3</h3>
-                        <img id="chart3" src="" alt="Gráfico 3" class="w-full h-auto rounded">
-                    </div>
-                </div>
-
-                <a id="download-link" href="#"
-                    class="inline-flex items-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-700 transition shadow-xl"
-                    download>
-                    Baixar Arquivo Processado (.xlsx)
-                </a>
-
-                <a href="/dashboard"
-                    class="inline-flex items-center bg-green-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-green-700 transition shadow-xl mt-4">
-                    Abrir Dashboard Completo
-                </a>
-            </div>
-        </article>
     </main>
-
-    <div id="session-data" data-processed-file="{{ session.get('last_processed_file', '') }}"
-        data-fig1="{{ session.get('fig1', '') }}" data-fig2="{{ session.get('fig2', '') }}"
-        data-fig3="{{ session.get('fig3', '') }}">
-    </div>
-
 
     <script>
         window.addEventListener("DOMContentLoaded", () => {
             // --- LÓGICA ORIGINAL DA PÁGINA ---
             const stepUpload = document.getElementById('step-upload');
             const stepProcessing = document.getElementById('step-processing');
-            const stepComplete = document.getElementById('step-complete');
             const dropZone = document.getElementById('drop-zone');
             const fileInput = document.getElementById('file-input');
             const browseBtn = document.getElementById('browse-btn');
@@ -220,7 +174,6 @@
             function showStep(step) {
                 stepUpload.classList.add('hidden');
                 stepProcessing.classList.add('hidden');
-                stepComplete.classList.add('hidden');
                 step.classList.remove('hidden');
             }
 
@@ -267,36 +220,9 @@
                 }
             });
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const uploadSuccess = urlParams.get('upload');
             updateFileNameAndButton(null);
             fileInput.value = "";
-
-            if (uploadSuccess === 'success') {
-                history.replaceState(null, '', window.location.pathname);
-                const sessionData = document.getElementById('session-data').dataset;
-                const sessionProcessedFile = sessionData.processedFile;
-                const fig1_name = sessionData.fig1;
-                const fig2_name = sessionData.fig2;
-                const fig3_name = sessionData.fig3;
-
-                showStep(stepComplete);
-
-                const downloadLink = document.getElementById('download-link');
-                if (downloadLink && sessionProcessedFile) {
-                    downloadLink.href = `/download/${encodeURIComponent(sessionProcessedFile)}`;
-                }
-
-                const chart1 = document.getElementById('chart1');
-                const chart2 = document.getElementById('chart2');
-                const chart3 = document.getElementById('chart3');
-
-                if (chart1 && fig1_name) chart1.src = `/plots/${encodeURIComponent(fig1_name)}`;
-                if (chart2 && fig2_name) chart2.src = `/plots/${encodeURIComponent(fig2_name)}`;
-                if (chart3 && fig3_name) chart3.src = `/plots/${encodeURIComponent(fig3_name)}`;
-            } else {
-                showStep(stepUpload);
-            }
+            showStep(stepUpload);
 
             // --- LÓGICA DO CARROSSEL ADICIONADA AQUI ---
             const carouselSlides = document.querySelectorAll('.carousel-slide');

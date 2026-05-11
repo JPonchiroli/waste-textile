@@ -65,7 +65,7 @@ def upload_file():
     session['fig2'] = os.path.basename(out_fig_paths[1])
     session['fig3'] = os.path.basename(out_fig_paths[2])
 
-    return redirect(url_for('index') + '?upload=success')
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/download/template')
@@ -162,6 +162,21 @@ def process_data_for_dashboard(file_path):
                 dados_combinados['Producao_Total_kg'] * 0.10
             )
 
+        if 'Potencial_Reciclagem_Percent' not in dados_combinados.columns:
+            dados_combinados['Potencial_Reciclagem_Percent'] = 0.0
+        else:
+            dados_combinados['Potencial_Reciclagem_Percent'] = dados_combinados['Potencial_Reciclagem_Percent'].fillna(0.0)
+
+        if 'Residuo_Reciclavel_kg' not in dados_combinados.columns:
+            dados_combinados['Residuo_Reciclavel_kg'] = 0.0
+        else:
+            dados_combinados['Residuo_Reciclavel_kg'] = dados_combinados['Residuo_Reciclavel_kg'].fillna(0.0)
+
+        if 'Economia_RS' not in dados_combinados.columns:
+            dados_combinados['Economia_RS'] = 0.0
+        else:
+            dados_combinados['Economia_RS'] = dados_combinados['Economia_RS'].fillna(0.0)
+
         dados_combinados['min_expected'] = (
             dados_combinados['Producao_Minima_Esperada']
             if 'Producao_Minima_Esperada' in dados_combinados.columns
@@ -182,6 +197,9 @@ def process_data_for_dashboard(file_path):
             'efficiency': dados_combinados['Eficiencia_kg_h'].tolist(),
             'hours': dados_combinados['Horas_Operacionais'].tolist(),
             'waste': dados_combinados['Residuo_kg'].tolist(),
+            'recycling_potential': dados_combinados['Potencial_Reciclagem_Percent'].tolist(),
+            'recycled_waste': dados_combinados['Residuo_Reciclavel_kg'].tolist(),
+            'recycling_savings': dados_combinados['Economia_RS'].tolist(),
             'is_forecast': dados_combinados['is_forecast'].tolist(),
             'min_expected': dados_combinados['min_expected'].astype(object).where(
                 pd.notna(dados_combinados['min_expected']), None
@@ -216,7 +234,10 @@ def process_data_for_dashboard(file_path):
                 'horas_operacionais': float(primeira_previsao['Horas_Operacionais']),
                 'variacao_horas': float(variacao_horas),
                 'residuo_estimado': float(primeira_previsao['Residuo_kg']),
-                'variacao_residuo': float(variacao_producao)
+                'variacao_residuo': float(variacao_producao),
+                'recycling_potential': float(primeira_previsao['Potencial_Reciclagem_Percent']),
+                'recycled_waste': float(primeira_previsao['Residuo_Reciclavel_kg']),
+                'recycling_savings': float(primeira_previsao['Economia_RS'])
             }
         else:
             dashboard_data['metrics'] = empty_metrics()
@@ -246,7 +267,10 @@ def empty_metrics():
         'producao_total': 0, 'variacao_producao': 0,
         'eficiencia': 0, 'variacao_eficiencia': 0,
         'horas_operacionais': 0, 'variacao_horas': 0,
-        'residuo_estimado': 0, 'variacao_residuo': 0
+        'residuo_estimado': 0, 'variacao_residuo': 0,
+        'recycling_potential': 0.0,
+        'recycled_waste': 0.0,
+        'recycling_savings': 0.0
     }
 
 

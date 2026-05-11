@@ -30,6 +30,19 @@ O sistema retorna um novo arquivo com:
 
 ---
 
+## 📦 Gerador Sintético
+
+O projeto também contém um gerador de dados sintéticos que produz uma série temporal mensal realista.
+
+Características do gerador:
+- dados em ordem cronológica
+- dependência temporal entre meses
+- sazonalidade anual para eficiência, horas e resíduos
+- tendência gradual ao longo do tempo
+- um único registro por mês, sem repetições de `Mes`
+
+---
+
 ## 🧱 Modelo Base Mínimo Necessário
 
 Para o programa funcionar, seu arquivo de entrada **deve conter as seguintes colunas**:
@@ -133,4 +146,13 @@ venv\Scripts\activate
 
 # 3. Instalar dependências
 pip install -r requirements.txt
+
+# 4. Treinar o modelo de ML
+O projeto já inclui um pipeline para gerar dados sintéticos, treinar um modelo simples e salvar os artefatos em `ml/model.pkl` e `ml/scaler.pkl`.
+
+```bash
+python -m ml.train
+```
+
+O script também gera o arquivo `ml/training_data.csv` com a base sintética criada para treinamento.
 
